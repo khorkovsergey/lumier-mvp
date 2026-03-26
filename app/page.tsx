@@ -109,7 +109,12 @@ export default function SplashPage() {
               }}
               transition={{ duration: 2, repeat: Infinity, delay: i * 0.3, ease: 'easeInOut' }}
               initial={{ width: 4, height: 4 }}
-              style={{ height: 4, borderRadius: 999, background: 'var(--gold-light)' }}
+              style={{
+              width: 4,
+              height: 4,
+              borderRadius: 999,
+              background: 'var(--gold-light)'
+               }}
             />
           ))}
         </div>
