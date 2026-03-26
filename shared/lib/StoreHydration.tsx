@@ -2,11 +2,16 @@
 
 import { useEffect } from 'react'
 import { useAppStore } from './store'
+import { useFlowStore } from '@/features/flow/useFlow'
 
 export function StoreHydration() {
-  const hydrate = useAppStore((s) => s._hydrate)
+  const hydrateApp  = useAppStore((s) => s._hydrate)
+  const hydrateFlow = useFlowStore((s) => s._hydrate)
+
   useEffect(() => {
-    hydrate()
-  }, [hydrate])
+    hydrateApp()
+    hydrateFlow()
+  }, [hydrateApp, hydrateFlow])
+
   return null
 }

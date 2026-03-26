@@ -1,11 +1,8 @@
 'use client'
 
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
-
-// ─── Step definitions ─────────────────────────────────────────────────────────
 
 export const FLOW_STEPS = [
   'onboarding',
@@ -33,70 +30,85 @@ const STEP_ROUTES: Record<FlowStep, string> = {
   'result':           '/result',
 }
 
-// What each step requires to be set in the store
 const STEP_GUARDS: Partial<Record<FlowStep, FlowStep[]>> = {
-  'question':       ['onboarding'],
-  'readers':        ['onboarding', 'question'],
-  'checkout':       ['onboarding', 'question', 'readers'],
-  'session-format': ['onboarding', 'question', 'readers', 'checkout'],
-  'live':           ['onboarding', 'question', 'readers', 'checkout', 'session-format'],
-  'async-submitted':['onboarding', 'question', 'readers', 'checkout', 'session-format'],
-  'async-status':   ['onboarding', 'question', 'readers', 'checkout', 'session-format'],
-  'result':         ['onboarding', 'question', 'readers', 'checkout', 'session-format'],
+  'question':        ['onboarding'],
+  'readers':         ['onboarding', 'question'],
+  'checkout':        ['onboarding', 'question', 'readers'],
+  'session-format':  ['onboarding', 'question', 'readers', 'checkout'],
+  'live':            ['onboarding', 'question', 'readers', 'checkout', 'session-format'],
+  'async-submitted': ['onboarding', 'question', 'readers', 'checkout', 'session-format'],
+  'async-status':    ['onboarding', 'question', 'readers', 'checkout', 'session-format'],
+  'result':          ['onboarding', 'question', 'readers', 'checkout', 'session-format'],
 }
 
-// ─── Store ────────────────────────────────────────────────────────────────────
+const FLOW_KEY = 'lumina-flow'
+
+function readFlow(): FlowStep[] {
+  try {
+    const raw = localStorage.getItem(FLOW_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function writeFlow(steps: FlowStep[]) {
+  try {
+    localStorage.setItem(FLOW_KEY, JSON.stringify(steps))
+  } catch {}
+}
 
 interface FlowStore {
   completedSteps: FlowStep[]
   currentStep: FlowStep | null
+  _hydrated: boolean
 
   markComplete: (step: FlowStep) => void
   setCurrentStep: (step: FlowStep) => void
   hasCompleted: (step: FlowStep) => boolean
   canAccessStep: (step: FlowStep) => boolean
   reset: () => void
+  _hydrate: () => void
 }
 
-export const useFlowStore = create<FlowStore>()(
-  persist(
-    (set, get) => ({
-      completedSteps: [],
-      currentStep: null,
+export const useFlowStore = create<FlowStore>()((set, get) => ({
+  completedSteps: [],
+  currentStep: null,
+  _hydrated: false,
 
-      markComplete: (step) =>
-        set((s) => ({
-          completedSteps: s.completedSteps.includes(step)
-            ? s.completedSteps
-            : [...s.completedSteps, step],
-        })),
+  markComplete: (step) => {
+    const next = get().completedSteps.includes(step)
+      ? get().completedSteps
+      : [...get().completedSteps, step]
+    set({ completedSteps: next })
+    writeFlow(next)
+  },
 
-      setCurrentStep: (step) => set({ currentStep: step }),
+  setCurrentStep: (step) => set({ currentStep: step }),
 
-      hasCompleted: (step) => get().completedSteps.includes(step),
+  hasCompleted: (step) => get().completedSteps.includes(step),
 
-      canAccessStep: (step) => {
-        const required = STEP_GUARDS[step]
-        if (!required) return true
-        const { completedSteps } = get()
-        return required.every((s) => completedSteps.includes(s))
-      },
+  canAccessStep: (step) => {
+    const required = STEP_GUARDS[step]
+    if (!required) return true
+    return required.every((s) => get().completedSteps.includes(s))
+  },
 
-      reset: () => set({ completedSteps: [], currentStep: null }),
-    }),
-    {
-      name: 'lumina-flow',
-      partialize: (s) => ({ completedSteps: s.completedSteps }),
-    }
-  )
-)
+  reset: () => {
+    set({ completedSteps: [], currentStep: null })
+    try { localStorage.removeItem(FLOW_KEY) } catch {}
+  },
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+  _hydrate: () => {
+    if (get()._hydrated) return
+    const saved = readFlow()
+    set({ completedSteps: saved, _hydrated: true })
+  },
+}))
 
 export function useFlow() {
   const router = useRouter()
-  const { markComplete, setCurrentStep, hasCompleted, canAccessStep, reset } =
-    useFlowStore()
+  const { markComplete, setCurrentStep, hasCompleted, canAccessStep, reset } = useFlowStore()
 
   const advance = useCallback(
     (completedStep: FlowStep, nextStep: FlowStep) => {
@@ -110,7 +122,6 @@ export function useFlow() {
   const goTo = useCallback(
     (step: FlowStep) => {
       if (!canAccessStep(step)) {
-        // Redirect to furthest accessible step
         router.replace(STEP_ROUTES['onboarding'])
         return
       }
