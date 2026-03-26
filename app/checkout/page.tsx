@@ -1,12 +1,13 @@
 'use client'
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { createSession, createOrder, confirmPayment } from '@/server/actions'
 import { useAppStore } from '@/shared/lib/store'
 import { useFlowStore } from '@/features/flow/useFlow'
 import { Button } from '@/shared/ui/Button'
-import { pageTransition, staggerContainer, staggerItem } from '@/shared/animations/variants'
+import { pageIn, staggerNormal, revealNormal, revealSubtle } from '@/shared/animations/variants'
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -14,14 +15,22 @@ export default function CheckoutPage() {
   const { markComplete } = useFlowStore()
   const [loading, setLoading] = useState(false)
   const [paid, setPaid] = useState(false)
+  const [ready, setReady] = useState(false)
 
-  if (!reader.id || !user.id) { router.replace('/readers'); return null }
+  useEffect(() => {
+    if (!reader.id || !user.id) {
+      router.replace('/readers')
+    } else {
+      setReady(true)
+    }
+  }, [reader.id, user.id, router])
+
+  if (!ready) return null
 
   async function handlePay() {
     if (!user.id || !reader.id) return
     setLoading(true)
     try {
-      // Create session with ASYNC as default; type is updated after format selection
       const sessionResult = await createSession({ userId: user.id, readerId: reader.id, type: 'ASYNC' })
       const orderResult = await createOrder({
         userId: user.id,
@@ -43,52 +52,57 @@ export default function CheckoutPage() {
   }
 
   return (
-    <motion.div variants={pageTransition} initial="hidden" animate="visible"
-      className="flex min-h-screen flex-col bg-ivory-50">
+    <motion.div variants={pageIn} initial="hidden" animate="visible"
+      className="flex min-h-screen flex-col" style={{ background: 'var(--bg-base)' }}>
 
       <div className="px-5 pt-14">
         <button onClick={() => router.back()}
-          className="mb-6 inline-flex items-center gap-1.5 font-sans text-[11px] uppercase tracking-widest text-stone-400 hover:text-stone-600 transition-colors">
+          className="mb-6 inline-flex items-center gap-1.5 label-overline transition-opacity hover:opacity-60"
+          style={{ color: 'var(--text-muted)' }}>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
             <path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Back
         </button>
-        <h2 className="font-serif text-[2rem] font-light text-stone-800">Review & Pay</h2>
+        <h2 className="font-serif font-light" style={{ fontSize: '2rem', color: 'var(--text-primary)' }}>
+          Review &amp; Pay
+        </h2>
       </div>
 
-      <motion.div variants={staggerContainer} initial="hidden" animate="visible"
+      <motion.div variants={staggerNormal} initial="hidden" animate="visible"
         className="flex-1 px-5 pt-6 space-y-4">
 
         {/* Order summary */}
-        <motion.div variants={staggerItem}
-          className="rounded-2xl border border-stone-100 bg-white p-5 space-y-4">
-          <p className="font-sans text-[11px] uppercase tracking-widest text-stone-400">Order Summary</p>
+        <motion.div variants={revealNormal} className="rounded-xl p-5 space-y-4"
+          style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)' }}>
+          <p className="label-overline" style={{ color: 'var(--text-muted)' }}>Order Summary</p>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="font-serif text-xl text-stone-800">{reader.name}</p>
-              <p className="font-sans text-xs text-stone-400 mt-0.5">{reader.specialization}</p>
+              <p className="font-serif text-xl" style={{ color: 'var(--text-primary)' }}>{reader.name}</p>
+              <p className="font-sans text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{reader.specialization}</p>
             </div>
-            <p className="font-serif text-2xl font-light text-stone-800">${reader.price}</p>
+            <p className="font-serif text-2xl font-light" style={{ color: 'var(--text-primary)' }}>${reader.price}</p>
           </div>
 
           {question.text && (
-            <div className="rounded-xl bg-ivory-100 border border-stone-100 p-3">
-              <p className="font-sans text-[11px] uppercase tracking-widest text-stone-400 mb-1.5">Your question</p>
-              <p className="font-sans text-sm leading-relaxed text-stone-600 line-clamp-3">{question.text}</p>
+            <div className="rounded-xl p-3" style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)' }}>
+              <p className="label-overline mb-1.5" style={{ color: 'var(--text-muted)' }}>Your question</p>
+              <p className="font-sans text-sm leading-relaxed line-clamp-3" style={{ color: 'var(--text-secondary)' }}>
+                {question.text}
+              </p>
             </div>
           )}
 
-          <div className="border-t border-stone-100 pt-3 flex justify-between">
-            <p className="font-sans text-sm text-stone-500">Total due today</p>
-            <p className="font-sans text-sm font-medium text-stone-800">${reader.price}</p>
+          <div className="flex justify-between pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+            <p className="font-sans text-sm" style={{ color: 'var(--text-secondary)' }}>Total due today</p>
+            <p className="font-sans text-sm font-medium" style={{ color: 'var(--text-primary)' }}>${reader.price}</p>
           </div>
         </motion.div>
 
-        {/* Simulated payment form */}
-        <motion.div variants={staggerItem}
-          className="rounded-2xl border border-stone-100 bg-white p-5 space-y-4">
-          <p className="font-sans text-[11px] uppercase tracking-widest text-stone-400">Payment Details</p>
+        {/* Simulated payment */}
+        <motion.div variants={revealNormal} className="rounded-xl p-5 space-y-4"
+          style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)' }}>
+          <p className="label-overline" style={{ color: 'var(--text-muted)' }}>Payment Details</p>
           <div className="space-y-3">
             <FieldRow label="Card number" value="4242 4242 4242 4242" />
             <div className="grid grid-cols-2 gap-3">
@@ -96,14 +110,14 @@ export default function CheckoutPage() {
               <FieldRow label="CVC" value="•••" />
             </div>
           </div>
-          <p className="font-sans text-xs text-stone-400">
+          <p className="font-sans text-xs" style={{ color: 'var(--text-muted)' }}>
             ✦ Demo mode — no real charge is made.
           </p>
         </motion.div>
 
-        <motion.div variants={staggerItem} className="flex justify-center gap-8 py-1">
+        <motion.div variants={revealSubtle} className="flex justify-center gap-8 py-1">
           {['Secure', 'Encrypted', 'Refundable'].map((t) => (
-            <p key={t} className="font-sans text-xs text-stone-400">{t}</p>
+            <p key={t} className="font-sans text-xs" style={{ color: 'var(--text-muted)' }}>{t}</p>
           ))}
         </motion.div>
       </motion.div>
@@ -111,9 +125,10 @@ export default function CheckoutPage() {
       <div className="px-5 pb-10 pt-4 safe-bottom">
         {paid ? (
           <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 border border-emerald-200 px-6 py-4">
-            <span className="text-emerald-500">✓</span>
-            <p className="font-sans text-sm text-emerald-700">Payment confirmed</p>
+            className="flex items-center justify-center gap-2 rounded-2xl px-6 py-4"
+            style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+            <span style={{ color: '#16a34a' }}>✓</span>
+            <p className="font-sans text-sm" style={{ color: '#15803d' }}>Payment confirmed</p>
           </motion.div>
         ) : (
           <Button onClick={handlePay} loading={loading} fullWidth size="lg">
@@ -128,8 +143,9 @@ export default function CheckoutPage() {
 function FieldRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="space-y-1.5">
-      <label className="block font-sans text-[11px] font-medium uppercase tracking-widest text-stone-400">{label}</label>
-      <div className="w-full rounded-2xl border border-stone-200 bg-ivory-50 px-4 py-3 font-sans text-sm text-stone-600">
+      <label className="label-overline block">{label}</label>
+      <div className="rounded-xl px-4 py-3 font-sans text-sm"
+        style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
         {value}
       </div>
     </div>
