@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { sendMessage, getMessages, sendReaderGreeting } from '@/server/actions'
 import { useAppStore } from '@/shared/lib/store'
 import { chatReader, chatUser, dur, ease } from '@/shared/animations/variants'
-import { cn } from '@/shared/lib/utils'
 
 interface Message {
   id: string
@@ -15,7 +14,6 @@ interface Message {
   createdAt: Date | string
 }
 
-// Thoughtful delays — reader "thinking" feel
 const READER_DELAY_MS = 2200
 
 export default function ChatPage() {
@@ -50,7 +48,6 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, readerTyping])
 
-  // Auto-resize textarea
   useEffect(() => {
     const el = textareaRef.current
     if (!el) return
@@ -72,14 +69,11 @@ export default function ChatPage() {
     setInput('')
     setSending(true)
 
-    // Optimistic user message
-    const optimisticId = 'opt-' + Date.now()
     setMessages((prev) => [
       ...prev,
-      { id: optimisticId, senderType: 'USER', content, createdAt: new Date() },
+      { id: 'opt-' + Date.now(), senderType: 'USER', content, createdAt: new Date() },
     ])
 
-    // Show reader thinking after a beat
     setTimeout(() => setReaderTyping(true), 400)
 
     try {
@@ -100,18 +94,16 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-[100dvh] flex-col" style={{ background: 'var(--bg-base)' }}>
-
-      {/* ── Header ─────────────────────────────────────────── */}
-      <div className="flex-shrink-0 glass"
-        style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+      {/* Header */}
+      <div className="flex-shrink-0 glass" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
         <div className="flex items-center gap-3 px-5 py-3.5">
-          {/* Avatar */}
           <div className="relative flex-shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl font-serif text-sm font-medium"
-              style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)' }}>
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-xl font-serif text-sm font-medium"
+              style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)' }}
+            >
               {initial}
             </div>
-            {/* Online dot */}
             <motion.div
               animate={{ scale: [1, 1.25, 1], opacity: [0.8, 1, 0.8] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
@@ -119,7 +111,6 @@ export default function ChatPage() {
               style={{ background: '#4ade80', borderColor: 'var(--bg-base)' }}
             />
           </div>
-
           <div className="flex-1 min-w-0">
             <p className="font-serif text-base font-medium truncate" style={{ color: 'var(--text-primary)', lineHeight: 1.2 }}>
               {reader.name ?? 'Your Reader'}
@@ -128,17 +119,17 @@ export default function ChatPage() {
               {reader.specialization ?? 'Consultation active'}
             </p>
           </div>
-
           <button
             onClick={() => { if (pollRef.current) clearInterval(pollRef.current); router.push('/insights') }}
             className="font-sans text-xs px-3 py-1.5 rounded-full transition-all"
-            style={{ color: 'var(--text-muted)', border: '1px solid var(--border-subtle)', background: 'var(--bg-raised)' }}>
+            style={{ color: 'var(--text-muted)', border: '1px solid var(--border-subtle)', background: 'var(--bg-raised)' }}
+          >
             End session
           </button>
         </div>
       </div>
 
-      {/* ── Message feed ───────────────────────────────────── */}
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-5 py-6 space-y-5">
         {!initialized && (
           <div className="flex justify-center py-12">
@@ -154,10 +145,14 @@ export default function ChatPage() {
               initial="hidden"
               animate="visible"
               layout="position"
-              className={cn('flex', msg.senderType === 'USER' ? 'justify-end' : 'justify-start')}
+              className={msg.senderType === 'USER' ? 'flex justify-end' : 'flex justify-start'}
             >
               {msg.senderType === 'READER' ? (
-                <ReaderMessage content={msg.content} initial={initial} isFirst={i === 0 || messages[i-1]?.senderType !== 'READER'} />
+                <ReaderMessage
+                  content={msg.content}
+                  initial={initial}
+                  isFirst={i === 0 || messages[i - 1]?.senderType !== 'READER'}
+                />
               ) : (
                 <UserMessage content={msg.content} />
               )}
@@ -165,7 +160,6 @@ export default function ChatPage() {
           ))}
         </AnimatePresence>
 
-        {/* Reader thinking indicator */}
         <AnimatePresence>
           {readerTyping && (
             <motion.div
@@ -175,12 +169,16 @@ export default function ChatPage() {
               transition={{ duration: dur.normal, ease: ease.outSoft }}
               className="flex items-end gap-3"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl flex-shrink-0 font-serif text-xs"
-                style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)' }}>
+              <div
+                className="flex h-8 w-8 items-center justify-center rounded-xl flex-shrink-0 font-serif text-xs"
+                style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)' }}
+              >
                 {initial}
               </div>
-              <div className="rounded-2xl rounded-bl-sm px-5 py-3.5"
-                style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div
+                className="rounded-2xl rounded-bl-sm px-5 py-3.5"
+                style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+              >
                 <ConsultationDots />
               </div>
             </motion.div>
@@ -190,9 +188,8 @@ export default function ChatPage() {
         <div ref={bottomRef} className="h-2" />
       </div>
 
-      {/* ── Input ──────────────────────────────────────────── */}
-      <div className="flex-shrink-0 glass safe-bottom"
-        style={{ borderTop: '1px solid var(--border-subtle)' }}>
+      {/* Input */}
+      <div className="flex-shrink-0 glass safe-bottom" style={{ borderTop: '1px solid var(--border-subtle)' }}>
         <div className="flex items-end gap-3 px-5 py-3.5">
           <textarea
             ref={textareaRef}
@@ -218,9 +215,10 @@ export default function ChatPage() {
             onClick={handleSend}
             disabled={!input.trim() || sending}
             className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl transition-opacity disabled:opacity-30"
-            style={{ background: 'var(--text-primary)', color: 'var(--bg-raised)' }}>
+            style={{ background: 'var(--text-primary)', color: 'var(--bg-raised)' }}
+          >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M1.5 7L12.5 1.5L8 12.5L6.5 8L1.5 7Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+              <path d="M1.5 7L12.5 1.5L8 12.5L6.5 8L1.5 7Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
             </svg>
           </motion.button>
         </div>
@@ -229,28 +227,26 @@ export default function ChatPage() {
   )
 }
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
-
 function ReaderMessage({ content, initial, isFirst }: { content: string; initial: string; isFirst: boolean }) {
   return (
     <div className="flex items-end gap-3 max-w-[84%]">
-      {/* Avatar — only show for first in run */}
       <div className="flex-shrink-0 w-8">
         {isFirst && (
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl font-serif text-xs"
-            style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)' }}>
+          <div
+            className="flex h-8 w-8 items-center justify-center rounded-xl font-serif text-xs"
+            style={{ background: 'var(--bg-raised)', color: 'var(--text-secondary)' }}
+          >
             {initial}
           </div>
         )}
       </div>
-      <div>
-        {/* Reader messages: clean text feel, not a bubble */}
-        <div className="rounded-2xl rounded-bl-sm px-5 py-4"
-          style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-          <p className="font-sans text-sm leading-relaxed" style={{ color: 'var(--text-primary)', lineHeight: 1.8 }}>
-            {content}
-          </p>
-        </div>
+      <div
+        className="rounded-2xl rounded-bl-sm px-5 py-4"
+        style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+      >
+        <p className="font-sans text-sm" style={{ color: 'var(--text-primary)', lineHeight: 1.8 }}>
+          {content}
+        </p>
       </div>
     </div>
   )
@@ -258,9 +254,11 @@ function ReaderMessage({ content, initial, isFirst }: { content: string; initial
 
 function UserMessage({ content }: { content: string }) {
   return (
-    <div className="max-w-[78%] rounded-2xl rounded-br-sm px-5 py-3.5"
-      style={{ background: 'var(--text-primary)', color: 'var(--bg-raised)' }}>
-      <p className="font-sans text-sm leading-relaxed" style={{ lineHeight: 1.7 }}>
+    <div
+      className="max-w-[78%] rounded-2xl rounded-br-sm px-5 py-3.5"
+      style={{ background: 'var(--text-primary)', color: 'var(--bg-raised)' }}
+    >
+      <p className="font-sans text-sm" style={{ lineHeight: 1.7 }}>
         {content}
       </p>
     </div>
@@ -273,8 +271,7 @@ function ConsultationDots() {
       {[0, 1, 2].map((i) => (
         <motion.div
           key={i}
-          className="rounded-full"
-          style={{ width: 5, height: 5, background: 'var(--border-default)' }}
+          style={{ width: 5, height: 5, borderRadius: 999, background: 'var(--border-default)' }}
           animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
           transition={{ duration: 0.7, repeat: Infinity, delay: i * 0.18, ease: 'easeInOut' }}
         />

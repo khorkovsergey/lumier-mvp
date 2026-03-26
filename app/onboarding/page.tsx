@@ -8,10 +8,7 @@ import { useAppStore } from '@/shared/lib/store'
 import { useFlowStore } from '@/features/flow/useFlow'
 import { Button } from '@/shared/ui/Button'
 import { Input } from '@/shared/ui/Input'
-import {
-  pageIn, staggerNormal, revealHero, revealNormal, revealSubtle,
-  dur, ease,
-} from '@/shared/animations/variants'
+import { pageIn, staggerNormal, revealHero, revealNormal, revealSubtle, dur, ease } from '@/shared/animations/variants'
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -60,12 +57,19 @@ export default function OnboardingPage() {
   const firstName = name.split(' ')[0] || 'you'
 
   return (
-    <motion.div variants={pageIn} initial="hidden" animate="visible" exit="exit"
-      className="flex min-h-screen flex-col" style={{ background: 'var(--bg-base)' }}>
-
+    <motion.div
+      variants={pageIn}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="flex min-h-screen flex-col"
+      style={{ background: 'var(--bg-base)' }}
+    >
       {/* Ambient top accent */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-64"
-        style={{ background: 'linear-gradient(to bottom, rgba(196,150,74,0.04), transparent)' }} />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-64"
+        style={{ background: 'linear-gradient(to bottom, rgba(196,150,74,0.04), transparent)' }}
+      />
 
       {/* Header */}
       <div className="relative px-6 pt-14">
@@ -77,71 +81,104 @@ export default function OnboardingPage() {
         </motion.div>
       </div>
 
-      {/* Step progress */}
+      {/* Step progress bar */}
       <div className="relative px-6 pt-8">
         <div className="flex gap-1.5">
           {[1, 2].map((s) => (
-            <motion.div key={s} className="h-[2px] flex-1 rounded-full overflow-hidden"
-              style={{ background: 'var(--border-subtle)' }}>
-              <motion.div className="h-full rounded-full"
+            <div key={s} className="h-[2px] flex-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
+              <motion.div
+                className="h-full rounded-full"
                 style={{ background: 'var(--gold)' }}
-                initial={{ scaleX: 0 }}
+                initial={{ scaleX: 0, originX: 0 }}
                 animate={{ scaleX: s <= step ? 1 : 0 }}
                 transition={{ duration: 0.5, ease: ease.outSoft }}
               />
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Content area */}
+      {/* Content */}
       <div className="relative flex flex-1 flex-col px-6 pt-12">
         <AnimatePresence mode="wait">
           {step === 1 ? (
-            <motion.div key="s1" variants={staggerNormal} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }}>
+            <motion.div
+              key="s1"
+              variants={staggerNormal}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0, x: -20, transition: { duration: dur.fast } }}
+            >
               <motion.p variants={revealSubtle} className="label-overline mb-3" style={{ color: 'var(--gold)' }}>
                 Step 1 of 2
               </motion.p>
-              <motion.h2 variants={revealHero}
-                className="font-serif mb-3"
-                style={{ fontSize: '2.25rem', lineHeight: 1.1, color: 'var(--text-primary)', fontWeight: 300 }}>
+              <motion.h2
+                variants={revealHero}
+                className="font-serif mb-3 font-light"
+                style={{ fontSize: '2.25rem', lineHeight: 1.1, color: 'var(--text-primary)' }}
+              >
                 Before we begin,<br />who are you?
               </motion.h2>
-              <motion.p variants={revealNormal} className="font-sans text-sm leading-relaxed mb-10"
-                style={{ color: 'var(--text-secondary)' }}>
-                Your reader uses your name to ground the reading in who you actually are — not just what you're asking.
+              <motion.p
+                variants={revealNormal}
+                className="font-sans text-sm leading-relaxed mb-10"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                Your reader uses your name to ground the reading in who you actually are — not just what you&apos;re asking.
               </motion.p>
               <motion.div variants={revealNormal}>
-                <Input label="Your name" type="text" placeholder="Full name"
-                  value={name} onChange={(e) => setName(e.target.value)}
+                <Input
+                  label="Your name"
+                  type="text"
+                  placeholder="Full name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   error={errors.name}
                   onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
-                  autoFocus />
+                  autoFocus
+                />
               </motion.div>
             </motion.div>
           ) : (
-            <motion.div key="s2" variants={staggerNormal} initial="hidden" animate="visible" exit={{ opacity: 0, x: -20 }}>
+            <motion.div
+              key="s2"
+              variants={staggerNormal}
+              initial="hidden"
+              animate="visible"
+              exit={{ opacity: 0, x: -20, transition: { duration: dur.fast } }}
+            >
               <motion.p variants={revealSubtle} className="label-overline mb-3" style={{ color: 'var(--gold)' }}>
                 Step 2 of 2
               </motion.p>
-              <motion.h2 variants={revealHero}
-                className="font-serif mb-3"
-                style={{ fontSize: '2.25rem', lineHeight: 1.1, color: 'var(--text-primary)', fontWeight: 300 }}>
+              <motion.h2
+                variants={revealHero}
+                className="font-serif mb-3 font-light"
+                style={{ fontSize: '2.25rem', lineHeight: 1.1, color: 'var(--text-primary)' }}
+              >
                 Hello, {firstName}.<br />One more thing.
               </motion.h2>
-              <motion.p variants={revealNormal} className="font-sans text-sm leading-relaxed mb-10"
-                style={{ color: 'var(--text-secondary)' }}>
-                Your date of birth provides the astrological context your reader draws on. It's used only for your reading.
+              <motion.p
+                variants={revealNormal}
+                className="font-sans text-sm leading-relaxed mb-10"
+                style={{ color: 'var(--text-secondary)' }}
+              >
+                Your date of birth provides astrological context your reader draws on. It&apos;s used only for your reading.
               </motion.p>
               <motion.div variants={revealNormal}>
-                <Input label="Date of birth" type="date" value={dob}
+                <Input
+                  label="Date of birth"
+                  type="date"
+                  value={dob}
                   onChange={(e) => setDob(e.target.value)}
                   error={errors.dob}
-                  max={new Date().toISOString().split('T')[0]} />
+                  max={new Date().toISOString().split('T')[0]}
+                />
               </motion.div>
-
-              <motion.div variants={revealSubtle} className="mt-6 rounded-lg px-4 py-3"
-                style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)' }}>
+              <motion.div
+                variants={revealSubtle}
+                className="mt-6 rounded-lg px-4 py-3"
+                style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)' }}
+              >
                 <p className="font-sans text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                   Your information is used only for your reading. It is never shared, sold, or retained beyond your session.
                 </p>
@@ -157,9 +194,11 @@ export default function OnboardingPage() {
           {step === 1 ? 'Continue' : 'Begin my reading'}
         </Button>
         {step === 2 && (
-          <button onClick={() => setStep(1)}
+          <button
+            onClick={() => setStep(1)}
             className="w-full font-sans text-sm transition-colors"
-            style={{ color: 'var(--text-muted)' }}>
+            style={{ color: 'var(--text-muted)' }}
+          >
             ← Back
           </button>
         )}
