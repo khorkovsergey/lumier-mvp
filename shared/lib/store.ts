@@ -1,5 +1,4 @@
 import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
 
 interface UserState {
   id: string | null
@@ -32,6 +31,7 @@ interface AppStore {
   question: QuestionState
   reader: ReaderContext
   session: SessionContext
+  _hydrated: boolean
 
   setUser: (user: UserState) => void
   setQuestion: (q: Partial<QuestionState>) => void
@@ -39,6 +39,7 @@ interface AppStore {
   setSession: (s: Partial<SessionContext>) => void
   clearSession: () => void
   reset: () => void
+  _hydrate: () => void
 }
 
 const emptyUser: UserState = { id: null, name: null, dateOfBirth: null }
@@ -46,43 +47,75 @@ const emptyQuestion: QuestionState = { id: null, text: null, category: null }
 const emptyReader: ReaderContext = { id: null, name: null, specialization: null, price: null, tier: null }
 const emptySession: SessionContext = { id: null, orderId: null, type: null }
 
-// Safe storage that works on server (returns empty, never throws)
-const safeStorage = createJSONStorage(() => {
-  if (typeof window === 'undefined') {
-    return {
-      getItem: () => null,
-      setItem: () => {},
-      removeItem: () => {},
-    }
+const STORAGE_KEY = 'lumina-app-state'
+
+// Read from localStorage manually — only called client-side
+function readStorage(): Partial<AppStore> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return {}
+    return JSON.parse(raw)
+  } catch {
+    return {}
   }
-  return localStorage
-})
+}
 
-export const useAppStore = create<AppStore>()(
-  persist(
-    (set) => ({
-      user:     emptyUser,
-      question: emptyQuestion,
-      reader:   emptyReader,
-      session:  emptySession,
+function writeStorage(state: Partial<AppStore>) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      user: state.user,
+      question: state.question,
+      reader: state.reader,
+      session: state.session,
+    }))
+  } catch {}
+}
 
-      setUser:     (user)  => set({ user }),
-      setQuestion: (q)     => set((s) => ({ question: { ...s.question, ...q } })),
-      setReader:   (r)     => set((s) => ({ reader:   { ...s.reader,   ...r } })),
-      setSession:  (sess)  => set((s) => ({ session:  { ...s.session,  ...sess } })),
+export const useAppStore = create<AppStore>()((set, get) => ({
+  user:      emptyUser,
+  question:  emptyQuestion,
+  reader:    emptyReader,
+  session:   emptySession,
+  _hydrated: false,
 
-      clearSession: () => set({ question: emptyQuestion, reader: emptyReader, session: emptySession }),
-      reset:        () => set({ user: emptyUser, question: emptyQuestion, reader: emptyReader, session: emptySession }),
-    }),
-    {
-      name: 'lumina-app-state',
-      storage: safeStorage,
-      partialize: (s) => ({
-        user: s.user,
-        question: s.question,
-        reader: s.reader,
-        session: s.session,
-      }),
-    }
-  )
-)
+  setUser: (user) => {
+    set({ user })
+    writeStorage({ ...get(), user })
+  },
+  setQuestion: (q) => {
+    const question = { ...get().question, ...q }
+    set({ question })
+    writeStorage({ ...get(), question })
+  },
+  setReader: (r) => {
+    const reader = { ...get().reader, ...r }
+    set({ reader })
+    writeStorage({ ...get(), reader })
+  },
+  setSession: (s) => {
+    const session = { ...get().session, ...s }
+    set({ session })
+    writeStorage({ ...get(), session })
+  },
+  clearSession: () => {
+    set({ question: emptyQuestion, reader: emptyReader, session: emptySession })
+    writeStorage({ ...get(), question: emptyQuestion, reader: emptyReader, session: emptySession })
+  },
+  reset: () => {
+    set({ user: emptyUser, question: emptyQuestion, reader: emptyReader, session: emptySession })
+    try { localStorage.removeItem(STORAGE_KEY) } catch {}
+  },
+
+  // Call once on client mount to load persisted state
+  _hydrate: () => {
+    if (get()._hydrated) return
+    const saved = readStorage()
+    set({
+      user:      saved.user      ?? emptyUser,
+      question:  saved.question  ?? emptyQuestion,
+      reader:    saved.reader    ?? emptyReader,
+      session:   saved.session   ?? emptySession,
+      _hydrated: true,
+    })
+  },
+}))

@@ -1,7 +1,4 @@
 'use client'
-
-export const dynamic = 'force-dynamic'
-
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
