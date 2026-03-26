@@ -3,205 +3,312 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { createUser } from '@/server/actions'
 import { useAppStore } from '@/shared/lib/store'
 import { useFlowStore } from '@/features/flow/useFlow'
 import { Button } from '@/shared/ui/Button'
-import { Input } from '@/shared/ui/Input'
-import { pageIn, staggerNormal, revealHero, revealNormal, revealSubtle, dur, ease } from '@/shared/animations/variants'
+import { staggerNormal, revealNormal, stickyBar, dur, ease } from '@/shared/animations/variants'
+import { cn } from '@/shared/lib/utils'
 
-export default function OnboardingPage() {
+interface Reader {
+  id: string
+  name: string
+  specialization: string
+  tier: 'FOUNDATION' | 'SENIOR' | 'MASTER'
+  price: number
+  rating: number
+  bio: string
+}
+
+const TIER_ORDER = { MASTER: 0, SENIOR: 1, FOUNDATION: 2 }
+const FILTERS = ['All', 'Foundation', 'Senior', 'Master'] as const
+type Filter = typeof FILTERS[number]
+
+function findRecommended(readers: Reader[]): string | null {
+  return readers.find((r) => r.tier === 'MASTER')?.id ?? readers[0]?.id ?? null
+}
+
+export function ReadersClient({ readers }: { readers: Reader[] }) {
   const router = useRouter()
-  const { setUser } = useAppStore()
+  const { question, reader: selectedReader, setReader } = useAppStore()
   const { markComplete } = useFlowStore()
-  const [step, setStep] = useState<1 | 2>(1)
-  const [name, setName] = useState('')
-  const [dob, setDob] = useState('')
-  const [errors, setErrors] = useState<{ name?: string; dob?: string }>({})
-  const [loading, setLoading] = useState(false)
+  const [filter, setFilter] = useState<Filter>('All')
+  const recommended = findRecommended(readers)
 
-  function validateStep1() {
-    const errs: typeof errors = {}
-    if (!name.trim() || name.trim().length < 2) errs.name = 'Please enter your name'
-    setErrors(errs)
-    return !errs.name
+  const filtered = readers
+    .filter((r) => filter === 'All' || r.tier === filter.toUpperCase())
+    .sort((a, b) => TIER_ORDER[a.tier] - TIER_ORDER[b.tier])
+
+  function handleSelect(r: Reader) {
+    setReader({ id: r.id, name: r.name, specialization: r.specialization, price: r.price, tier: r.tier })
   }
 
-  function validateStep2() {
-    const errs: typeof errors = {}
-    if (!dob) { errs.dob = 'Please enter your date of birth'; setErrors(errs); return false }
-    const parsed = new Date(dob)
-    const age = new Date().getFullYear() - parsed.getFullYear()
-    if (isNaN(parsed.getTime())) errs.dob = 'Invalid date'
-    else if (age < 18) errs.dob = 'You must be at least 18'
-    else if (age > 120) errs.dob = 'Please enter a valid date'
-    setErrors(errs)
-    return !errs.dob
+  function handleContinue() {
+    if (!selectedReader.id) return
+    markComplete('readers')
+    router.push('/checkout')
   }
-
-  async function handleContinue() {
-    if (step === 1) { if (validateStep1()) setStep(2); return }
-    if (!validateStep2()) return
-    setLoading(true)
-    try {
-      const result = await createUser({ name: name.trim(), dateOfBirth: dob })
-      if (result.success) {
-        setUser({ id: result.user.id, name: result.user.name, dateOfBirth: dob })
-        markComplete('onboarding')
-        router.push('/question')
-      }
-    } catch (e) { console.error(e) }
-    finally { setLoading(false) }
-  }
-
-  const firstName = name.split(' ')[0] || 'you'
 
   return (
-    <motion.div
-      variants={pageIn}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
-      className="flex min-h-screen flex-col"
-      style={{ background: 'var(--bg-base)' }}
-    >
-      {/* Ambient top accent */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-64"
-        style={{ background: 'linear-gradient(to bottom, rgba(196,150,74,0.04), transparent)' }}
-      />
-
+    <div className="flex min-h-screen flex-col" style={{ background: 'var(--bg-base)' }}>
       {/* Header */}
-      <div className="relative px-6 pt-14">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
-          <p className="font-serif text-lg font-light" style={{ color: 'var(--text-primary)', letterSpacing: '0.04em' }}>
-            Lumina
-          </p>
-          <div className="mt-1.5" style={{ height: 1, width: 24, background: 'var(--gold)' }} />
+      <div className="px-6 pt-12 pb-5">
+        <motion.button
+          onClick={() => router.back()}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-6 flex items-center gap-1.5 label-overline transition-opacity hover:opacity-60"
+          style={{ color: 'var(--text-muted)' }}
+          whileTap={{ scale: 0.97 }}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back
+        </motion.button>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: dur.slow, ease: ease.outSoft }}
+        >
+          <h1 className="font-serif font-light" style={{ fontSize: '2rem', lineHeight: 1.15, color: 'var(--text-primary)' }}>
+            Choose your guide
+          </h1>
+          {question.category && (
+            <p className="mt-1.5 font-sans text-sm" style={{ color: 'var(--text-muted)' }}>
+              For questions about{' '}
+              <span style={{ color: 'var(--text-secondary)' }} className="capitalize">
+                {question.category}
+              </span>
+            </p>
+          )}
+        </motion.div>
+
+        {/* Filter pills */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: dur.normal }}
+          className="mt-5 flex gap-2 overflow-x-auto pb-0.5 scrollbar-none"
+        >
+          {FILTERS.map((f) => (
+            <motion.button
+              key={f}
+              onClick={() => setFilter(f)}
+              whileTap={{ scale: 0.95 }}
+              className="flex-shrink-0 rounded-full px-4 py-1.5 font-sans text-xs font-medium transition-all"
+              style={
+                filter === f
+                  ? { background: 'var(--text-primary)', color: '#FAF7F0' }
+                  : { background: 'var(--bg-float)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }
+              }
+            >
+              {f}
+            </motion.button>
+          ))}
         </motion.div>
       </div>
 
-      {/* Step progress bar */}
-      <div className="relative px-6 pt-8">
-        <div className="flex gap-1.5">
-          {[1, 2].map((s) => (
-            <div key={s} className="h-[2px] flex-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
-              <motion.div
-                className="h-full rounded-full"
-                style={{ background: 'var(--gold)' }}
-                initial={{ scaleX: 0, originX: 0 }}
-                animate={{ scaleX: s <= step ? 1 : 0 }}
-                transition={{ duration: 0.5, ease: ease.outSoft }}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Reader list */}
+      <motion.div
+        variants={staggerNormal}
+        initial="hidden"
+        animate="visible"
+        className="flex-1 space-y-3 px-6 pb-36"
+      >
+        {filtered.map((r) => (
+          <motion.div key={r.id} variants={revealNormal}>
+            <ReaderCard
+              reader={r}
+              isSelected={selectedReader.id === r.id}
+              isRecommended={r.id === recommended && filter === 'All'}
+              onSelect={() => handleSelect(r)}
+            />
+          </motion.div>
+        ))}
+      </motion.div>
 
-      {/* Content */}
-      <div className="relative flex flex-1 flex-col px-6 pt-12">
-        <AnimatePresence mode="wait">
-          {step === 1 ? (
-            <motion.div
-              key="s1"
-              variants={staggerNormal}
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, x: -20, transition: { duration: dur.fast } }}
+      {/* Sticky CTA */}
+      <AnimatePresence>
+        {selectedReader.id && (
+          <motion.div
+            variants={stickyBar}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="fixed bottom-0 left-0 right-0 z-20"
+          >
+            <div
+              className="glass border-t safe-bottom px-6 py-4"
+              style={{ borderColor: 'var(--border-subtle)' }}
             >
-              <motion.p variants={revealSubtle} className="label-overline mb-3" style={{ color: 'var(--gold)' }}>
-                Step 1 of 2
-              </motion.p>
-              <motion.h2
-                variants={revealHero}
-                className="font-serif mb-3 font-light"
-                style={{ fontSize: '2.25rem', lineHeight: 1.1, color: 'var(--text-primary)' }}
-              >
-                Before we begin,<br />who are you?
-              </motion.h2>
-              <motion.p
-                variants={revealNormal}
-                className="font-sans text-sm leading-relaxed mb-10"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                Your reader uses your name to ground the reading in who you actually are — not just what you&apos;re asking.
-              </motion.p>
-              <motion.div variants={revealNormal}>
-                <Input
-                  label="Your name"
-                  type="text"
-                  placeholder="Full name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  error={errors.name}
-                  onKeyDown={(e) => e.key === 'Enter' && handleContinue()}
-                  autoFocus
-                />
-              </motion.div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="s2"
-              variants={staggerNormal}
-              initial="hidden"
-              animate="visible"
-              exit={{ opacity: 0, x: -20, transition: { duration: dur.fast } }}
-            >
-              <motion.p variants={revealSubtle} className="label-overline mb-3" style={{ color: 'var(--gold)' }}>
-                Step 2 of 2
-              </motion.p>
-              <motion.h2
-                variants={revealHero}
-                className="font-serif mb-3 font-light"
-                style={{ fontSize: '2.25rem', lineHeight: 1.1, color: 'var(--text-primary)' }}
-              >
-                Hello, {firstName}.<br />One more thing.
-              </motion.h2>
-              <motion.p
-                variants={revealNormal}
-                className="font-sans text-sm leading-relaxed mb-10"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                Your date of birth provides astrological context your reader draws on. It&apos;s used only for your reading.
-              </motion.p>
-              <motion.div variants={revealNormal}>
-                <Input
-                  label="Date of birth"
-                  type="date"
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  error={errors.dob}
-                  max={new Date().toISOString().split('T')[0]}
-                />
-              </motion.div>
-              <motion.div
-                variants={revealSubtle}
-                className="mt-6 rounded-lg px-4 py-3"
-                style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)' }}
-              >
-                <p className="font-sans text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                  Your information is used only for your reading. It is never shared, sold, or retained beyond your session.
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <p className="label-overline" style={{ color: 'var(--text-muted)' }}>Selected guide</p>
+                  <p className="font-serif text-base mt-0.5" style={{ color: 'var(--text-primary)' }}>
+                    {selectedReader.name}
+                  </p>
+                </div>
+                <p className="font-serif text-xl font-light" style={{ color: 'var(--text-primary)' }}>
+                  ${selectedReader.price}
                 </p>
-              </motion.div>
+              </div>
+              <Button onClick={handleContinue} fullWidth size="lg">
+                Continue to booking
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+const TIER_META = {
+  FOUNDATION: { label: 'Foundation', color: 'var(--text-muted)', bg: 'var(--bg-raised)' },
+  SENIOR:     { label: 'Senior',     color: '#92713A',           bg: '#FBF5EA' },
+  MASTER:     { label: 'Master',     color: 'var(--gold)',       bg: 'rgba(196,150,74,0.08)' },
+}
+
+function ReaderCard({
+  reader, isSelected, isRecommended, onSelect,
+}: {
+  reader: Reader
+  isSelected: boolean
+  isRecommended: boolean
+  onSelect: () => void
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const meta = TIER_META[reader.tier]
+
+  const cardStyle: React.CSSProperties = {
+    background: 'var(--bg-float)',
+    border: `1px solid ${isSelected ? 'var(--gold)' : 'var(--border-subtle)'}`,
+    boxShadow: isSelected
+      ? '0 4px 24px rgba(196,150,74,0.16), 0 1px 4px rgba(196,150,74,0.1)'
+      : '0 1px 4px rgba(0,0,0,0.04)',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
+  }
+
+  return (
+    <motion.div
+      onClick={onSelect}
+      whileHover={{ y: isSelected ? 0 : -2 }}
+      whileTap={{ scale: 0.995 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      className="relative cursor-pointer overflow-hidden rounded-xl"
+      style={cardStyle}
+    >
+      {/* Recommended ribbon */}
+      {isRecommended && !isSelected && (
+        <div className="absolute right-0 top-0">
+          <div
+            className="rounded-bl-lg px-3 py-1"
+            style={{
+              background: 'rgba(196,150,74,0.1)',
+              borderBottom: '1px solid rgba(196,150,74,0.2)',
+              borderLeft: '1px solid rgba(196,150,74,0.2)',
+            }}
+          >
+            <p className="label-overline" style={{ color: 'var(--gold)', fontSize: '0.6rem' }}>
+              Recommended
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="p-5">
+        {/* Top row */}
+        <div className="flex gap-4">
+          {/* Avatar */}
+          <div
+            className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-xl font-serif text-xl font-light"
+            style={{ background: isSelected ? 'rgba(196,150,74,0.12)' : meta.bg, color: isSelected ? 'var(--gold)' : meta.color }}
+          >
+            {reader.name.charAt(0)}
+          </div>
+
+          {/* Name + specialization + tier */}
+          <div className="flex-1 min-w-0 pt-0.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3
+                className="font-serif font-medium"
+                style={{ fontSize: '1.125rem', color: 'var(--text-primary)', lineHeight: 1.2 }}
+              >
+                {reader.name}
+              </h3>
+              <span
+                className="rounded-full px-2 py-0.5 font-sans font-medium"
+                style={{ fontSize: '0.65rem', background: meta.bg, color: meta.color }}
+              >
+                {meta.label}
+              </span>
+            </div>
+            <p className="mt-1 font-sans text-xs leading-snug" style={{ color: 'var(--text-muted)' }}>
+              {reader.specialization}
+            </p>
+          </div>
+
+          {/* Price + rating */}
+          <div className="flex-shrink-0 text-right pt-0.5">
+            <p className="font-serif text-xl font-light" style={{ color: 'var(--text-primary)' }}>
+              ${reader.price}
+            </p>
+            <div className="flex items-center justify-end gap-1 mt-1">
+              <span style={{ color: 'var(--gold)', fontSize: 10 }}>★</span>
+              <span className="font-sans text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+                {reader.rating}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bio */}
+        <div className="mt-4 pl-[4.5rem]">
+          <p
+            className={cn('font-sans text-sm leading-relaxed', !expanded && 'line-clamp-2')}
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            {reader.bio}
+          </p>
+          <button
+            onClick={(e) => { e.stopPropagation(); setExpanded(!expanded) }}
+            className="mt-1.5 font-sans text-xs transition-opacity hover:opacity-70"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            {expanded ? 'Less ↑' : 'Read more ↓'}
+          </button>
+        </div>
+
+        {/* Selected confirmation */}
+        <AnimatePresence>
+          {isSelected && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              className="overflow-hidden"
+            >
+              <div
+                className="rounded-lg px-4 py-2.5 flex items-center gap-2"
+                style={{ background: 'rgba(196,150,74,0.08)', border: '1px solid rgba(196,150,74,0.2)' }}
+              >
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 25, delay: 0.1 }}
+                  style={{ color: 'var(--gold)' }}
+                  className="text-xs"
+                >
+                  ✓
+                </motion.span>
+                <p className="font-sans text-xs" style={{ color: 'var(--gold)' }}>
+                  {reader.name.split(' ')[0]} selected — continue below
+                </p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      {/* CTA */}
-      <div className="relative px-6 pb-10 pt-6 safe-bottom space-y-3">
-        <Button onClick={handleContinue} loading={loading} fullWidth size="lg">
-          {step === 1 ? 'Continue' : 'Begin my reading'}
-        </Button>
-        {step === 2 && (
-          <button
-            onClick={() => setStep(1)}
-            className="w-full font-sans text-sm transition-colors"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            ← Back
-          </button>
-        )}
       </div>
     </motion.div>
   )
