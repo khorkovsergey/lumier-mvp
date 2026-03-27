@@ -14,10 +14,10 @@ module.exports = {
       colors: {
         // Base surfaces (elevation order: 50 → 100 → 200)
         ivory: {
-          50:  '#FDFCF8',   // page bg
-          100: '#FAF7F0',   // elevated surface
-          200: '#F4EDE0',   // pressed / accent surface
-          300: '#EDE3CC',   // decorative border
+          50:  '#FDFCF8',   // lightest tone (spare)
+          100: '#FAF7F0',   // floating surface (modals, bubbles)
+          200: '#F4EDE0',   // page bg
+          300: '#EDE3CC',   // elevated surface (cards)
         },
         // Single gold accent — use 400 everywhere; 300/500 for lighter/darker
         gold: {

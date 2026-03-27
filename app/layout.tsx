@@ -27,9 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#FDFCF8" />
+        <meta name="theme-color" content="#F4EDE0" />
       </head>
-      <body className="bg-ivory-50 font-sans antialiased overscroll-none">
+      <body className="bg-ivory-200 font-sans antialiased overscroll-none">
         <StoreHydration />
         {children}
       </body>

@@ -5,9 +5,9 @@
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
   /* Surfaces */
-  --bg-base:      #FDFCF8;
-  --bg-raised:    #FAF7F0;
-  --bg-float:     #FFFFFF;
+  --bg-base:      #F4EDE0;
+  --bg-raised:    #EDE3CC;
+  --bg-float:     #FAF7F0;
   /* Accent */
   --gold:         #C4964A;
   --gold-light:   #D4AF78;
@@ -117,21 +117,21 @@ body {
 
 /* ─── Shimmer loading ────────────────────────────────────────────────────── */
 .shimmer {
-  background: linear-gradient(90deg, #f0ebe3 25%, #f8f4ed 50%, #f0ebe3 75%);
+  background: linear-gradient(90deg, #E8DECA 25%, #F0E6D4 50%, #E8DECA 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s linear infinite;
 }
 
 /* ─── Glass surface ──────────────────────────────────────────────────────── */
 .glass {
-  background: rgba(253, 252, 248, 0.92);
+  background: rgba(244, 237, 224, 0.92);
   backdrop-filter: blur(16px) saturate(1.4);
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
 }
 
 /* ─── Consultation bubble (reader) ──────────────────────────────────────── */
 .bubble-reader {
-  background: #FFFFFF;
+  background: #FAF7F0;
   border: 1px solid var(--border-subtle);
   box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
