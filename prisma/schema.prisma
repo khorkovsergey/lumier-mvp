@@ -7,28 +7,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          String    @id @default(cuid())
-  name        String
-  dateOfBirth DateTime
-  createdAt   DateTime  @default(now())
+// ─── Auth & Identity ──────────────────────────────────────────────────────────
 
-  questions   Question[]
-  sessions    Session[]
-  orders      Order[]
+model User {
+  id           String    @id @default(cuid())
+  name         String
+  email        String?   @unique
+  passwordHash String?
+  role         UserRole  @default(CLIENT)
+  dateOfBirth  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  questions     Question[]
+  sessions      Session[]
+  orders        Order[]
+  readerProfile TarotReader?
 }
 
+enum UserRole {
+  CLIENT
+  READER
+  ADMIN
+}
+
+// ─── Reader profile ───────────────────────────────────────────────────────────
+
 model TarotReader {
-  id             String    @id @default(cuid())
+  id             String     @id @default(cuid())
+  userId         String     @unique
   name           String
   specialization String
   tier           ReaderTier
   price          Float
-  rating         Float
+  rating         Float      @default(5.0)
   bio            String
   imageUrl       String?
-  sessions       Session[]
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+
+  user     User      @relation(fields: [userId], references: [id])
+  sessions Session[]
 }
+
+// ─── Content ──────────────────────────────────────────────────────────────────
 
 model Question {
   id        String   @id @default(cuid())
@@ -37,7 +59,7 @@ model Question {
   category  String
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 model Session {
@@ -47,12 +69,13 @@ model Session {
   type      SessionType
   status    SessionStatus @default(PENDING)
   createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
-  user          User          @relation(fields: [userId], references: [id])
-  reader        TarotReader   @relation(fields: [readerId], references: [id])
-  order         Order?
-  asyncReading  AsyncReading?
-  messages      Message[]
+  user         User         @relation(fields: [userId], references: [id])
+  reader       TarotReader  @relation(fields: [readerId], references: [id])
+  order        Order?
+  asyncReading AsyncReading?
+  messages     Message[]
 }
 
 model Order {
@@ -63,19 +86,20 @@ model Order {
   status    OrderStatus @default(PENDING)
   createdAt DateTime    @default(now())
 
-  user      User        @relation(fields: [userId], references: [id])
-  session   Session     @relation(fields: [sessionId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  session Session @relation(fields: [sessionId], references: [id])
 }
 
 model AsyncReading {
-  id          String              @id @default(cuid())
-  sessionId   String              @unique
-  status      AsyncReadingStatus  @default(PENDING)
+  id          String             @id @default(cuid())
+  sessionId   String             @unique
+  status      AsyncReadingStatus @default(PENDING)
   resultText  String?
-  createdAt   DateTime            @default(now())
+  draftText   String?
+  createdAt   DateTime           @default(now())
   completedAt DateTime?
 
-  session     Session             @relation(fields: [sessionId], references: [id])
+  session Session @relation(fields: [sessionId], references: [id])
 }
 
 model Message {
@@ -83,9 +107,10 @@ model Message {
   sessionId  String
   senderType SenderType
   content    String
+  type       MessageType @default(TEXT)
   createdAt  DateTime    @default(now())
 
-  session    Session     @relation(fields: [sessionId], references: [id])
+  session Session @relation(fields: [sessionId], references: [id])
 }
 
 model InsightArticle {
@@ -97,6 +122,8 @@ model InsightArticle {
   readTime  Int      @default(5)
   createdAt DateTime @default(now())
 }
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
 
 enum ReaderTier {
   FOUNDATION
@@ -131,4 +158,10 @@ enum AsyncReadingStatus {
 enum SenderType {
   USER
   READER
+}
+
+enum MessageType {
+  TEXT
+  READING_DRAFT
+  READING_PUBLISHED
 }
