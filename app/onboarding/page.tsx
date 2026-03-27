@@ -189,7 +189,7 @@ export default function OnboardingPage() {
       {/* Кнопки */}
       <div className="relative px-6 pb-10 pt-6 safe-bottom space-y-3">
         <Button onClick={handleContinue} loading={loading} fullWidth size="lg">
-          {step === 1 ? 'Продолжить' : 'Начать моё чтение'}
+          {step === 1 ? 'Продолжить' : 'Начать  консультацию'}
         </Button>
         {step === 2 && (
           <button
