@@ -37,7 +37,7 @@ export default function SplashPage() {
           className="label-overline mb-5"
           style={{ color: 'var(--gold)' }}
         >
-          Личное откровение
+          Your insights
         </motion.p>
 
         <h1
