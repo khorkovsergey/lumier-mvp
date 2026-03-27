@@ -102,6 +102,31 @@ export default function SplashPage() {
           </div>
         </motion.button>
 
+        {/* Новости и прогнозы */}
+        <motion.button
+          whileHover={{ y: -2, boxShadow: '0 8px 32px rgba(196,150,74,0.10)' }}
+          whileTap={{ scale: 0.97 }}
+          onClick={() => router.push('/insights')}
+          className="w-full rounded-2xl px-6 py-5 text-left transition-all"
+          style={{
+            background: 'var(--bg-float)',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-serif text-lg font-medium" style={{ color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                Новости и прогнозы
+              </p>
+              <p className="font-sans text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                От экспертов Lumier
+              </p>
+            </div>
+            <span style={{ color: 'var(--gold)', fontSize: '1rem' }}>✧</span>
+          </div>
+        </motion.button>
+
         {/* Консультант */}
         <motion.button
           whileHover={{ y: -2, boxShadow: '0 8px 32px rgba(0,0,0,0.08)' }}
