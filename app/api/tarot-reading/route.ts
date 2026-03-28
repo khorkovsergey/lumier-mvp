@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { drawCards, SPREAD_LABELS, type DrawnCard, type TarotReading } from '@/entities/tarot'
+import { prisma } from '@/shared/lib/prisma'
+import { getServerSession } from '@/shared/lib/auth'
 
 // ─── AI System Prompt ─────────────────────────────────────────────────────────
 
@@ -112,6 +114,23 @@ export async function POST(req: Request) {
         })),
         advice: '',
       }
+    }
+
+    // Save for authenticated users (fire-and-forget)
+    const session = await getServerSession().catch(() => null)
+    if (session?.id) {
+      prisma.tarotReadingRecord.create({
+        data: {
+          userId:         session.id,
+          question:       question.trim(),
+          category:       category || 'general',
+          cardsJson:      JSON.stringify(drawnCards),
+          summary:        reading.summary || '',
+          interpretation: reading.interpretation || '',
+          cardsInsight:   JSON.stringify(reading.cards || []),
+          advice:         reading.advice || '',
+        },
+      }).catch(() => {}) // don't fail the response if save fails
     }
 
     return NextResponse.json({ drawnCards, reading })

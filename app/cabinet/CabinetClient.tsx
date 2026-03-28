@@ -36,7 +36,15 @@ interface User {
   role: string
 }
 
-export function CabinetClient({ user, sessions }: { user: User; sessions: Session[] }) {
+interface TarotHistoryItem {
+  id: string
+  question: string
+  category: string
+  summary: string
+  createdAt: Date | string
+}
+
+export function CabinetClient({ user, sessions, tarotHistory = [] }: { user: User; sessions: Session[]; tarotHistory?: TarotHistoryItem[] }) {
   const router = useRouter()
 
   const active   = sessions.filter(s => s.status === 'ACTIVE' || s.status === 'PENDING')
@@ -154,7 +162,56 @@ export function CabinetClient({ user, sessions }: { user: User; sessions: Sessio
           </motion.div>
         )}
 
-        {sessions.length === 0 && (
+        {/* История AI-раскладов */}
+        {tarotHistory.length > 0 && (
+          <motion.div variants={staggerNormal} initial="hidden" animate="visible">
+            <motion.div variants={revealSubtle} className="flex items-center justify-between mb-3">
+              <p className="label-overline" style={{ color: 'var(--text-muted)' }}>
+                История AI-раскладов
+              </p>
+              <span className="font-sans text-xs" style={{ color: 'var(--text-muted)' }}>
+                Последние 10
+              </span>
+            </motion.div>
+
+            <div className="space-y-2.5">
+              {tarotHistory.map(r => (
+                <motion.div key={r.id} variants={revealNormal}>
+                  <Link href={`/cabinet/tarot/${r.id}`}>
+                    <div className="rounded-xl px-4 py-3.5 transition-all cursor-pointer"
+                      style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)' }}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-serif text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                            {r.question}
+                          </p>
+                          {r.summary && (
+                            <p className="font-sans text-xs mt-1 line-clamp-1" style={{ color: 'var(--text-muted)' }}>
+                              {r.summary}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex-shrink-0 text-right">
+                          <p className="font-sans text-xs" style={{ color: 'var(--text-muted)' }}>
+                            {new Date(r.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+                          </p>
+                          <span style={{ color: 'var(--gold)', fontSize: '0.7rem' }}>◈</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+
+            <motion.p variants={revealSubtle}
+              className="font-sans text-xs mt-3 text-center" style={{ color: 'var(--text-muted)' }}>
+              Сохраняются только последние 10 раскладов
+            </motion.p>
+          </motion.div>
+        )}
+
+        {sessions.length === 0 && tarotHistory.length === 0 && (
           <motion.div variants={revealNormal} initial="hidden" animate="visible"
             className="py-16 text-center">
             <p className="font-serif text-xl font-light mb-2" style={{ color: 'var(--text-secondary)' }}>

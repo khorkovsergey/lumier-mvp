@@ -19,11 +19,12 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  questions     Question[]
-  sessions      Session[]
-  orders        Order[]
-  readerProfile TarotReader?
-  articles      InsightArticle[]
+  questions      Question[]
+  sessions       Session[]
+  orders         Order[]
+  readerProfile  TarotReader?
+  articles       InsightArticle[]
+  tarotReadings  TarotReadingRecord[]
 }
 
 enum UserRole {
@@ -126,6 +127,23 @@ model InsightArticle {
   author    User?    @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+// ─── AI Tarot Readings ────────────────────────────────────────────────────────
+
+model TarotReadingRecord {
+  id             String   @id @default(cuid())
+  userId         String
+  question       String
+  category       String   @default("general")
+  cardsJson      String   // JSON array of drawn cards
+  summary        String
+  interpretation String
+  cardsInsight   String   // JSON array of per-card insights
+  advice         String
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
