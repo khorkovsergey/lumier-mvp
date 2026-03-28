@@ -35,9 +35,10 @@ export async function requestPasswordReset(formData: FormData) {
   // Send email
   try {
     await sendPasswordResetEmail(email, token)
-  } catch (err) {
-    console.error('Failed to send reset email:', err)
-    return { error: 'Не удалось отправить письмо. Попробуйте позже.' }
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('Failed to send reset email:', msg, err)
+    return { error: `Ошибка отправки: ${msg}` }
   }
 
   return { success: successMsg }
