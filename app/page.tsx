@@ -95,7 +95,7 @@ function HeroScreen({ onTry, router }: { onTry: () => void; router: ReturnType<t
           transition={{ duration: 0.8, delay: 1.2 }}
           className="mt-4 font-sans text-sm mx-auto max-w-xs"
           style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          Пойми больше, чем видно — с&nbsp;помощью&nbsp;ИИ и&nbsp;символов
+          Узнай больше, чем можно увидеть — через язык символов, силу&nbsp;ИИ и&nbsp;личного консультанта
         </motion.p>
       </motion.div>
 
