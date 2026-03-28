@@ -69,70 +69,121 @@ export default function OnboardingPage() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function HeroScreen({ onTry, router }: { onTry: () => void; router: ReturnType<typeof useRouter> }) {
+  const features = [
+    { icon: '◈', text: 'ИИ нового поколения анализирует вашу ситуацию' },
+    { icon: '⚜', text: 'Живые эксперты-консультанты, а не боты' },
+    { icon: '✦', text: 'Реальные инсайты, а не случайные фразы' },
+  ]
+
   return (
-    <motion.div {...screenIn} className="flex min-h-screen flex-col items-center justify-center px-6">
-      {/* Logo */}
+    <motion.div {...screenIn} className="flex min-h-screen flex-col px-6 pt-16 pb-10">
+
+      {/* Top — Logo */}
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: dur.verySlow, ease: ease.outSoft, delay: 0.3 }}
-        className="text-center mb-14"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="text-center mb-4"
       >
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5 }} className="label-overline mb-4" style={{ color: 'var(--gold)' }}>
+        <p className="font-serif text-lg font-light" style={{ color: 'var(--text-primary)', letterSpacing: '0.08em' }}>
           Lumier
-        </motion.p>
-        <h1 className="font-serif font-light leading-[1.1] mx-auto max-w-sm"
-          style={{ fontSize: '2.2rem', color: 'var(--text-primary)' }}>
-          Обрети ясность,
-          <br />когда она нужна
-          <br />больше всего
-        </h1>
-        <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-          transition={{ duration: 0.7, delay: 0.9 }} className="mx-auto mt-5 origin-center"
-          style={{ height: '1px', width: '48px', background: 'linear-gradient(to right, transparent, var(--gold), transparent)' }} />
-        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 0.6 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
-          className="mt-4 font-sans text-sm mx-auto max-w-xs"
-          style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          Узнай больше, чем можно увидеть — через язык символов, силу&nbsp;ИИ и&nbsp;личного консультанта
-        </motion.p>
+        </p>
+        <div className="mx-auto mt-2 origin-center"
+          style={{ height: '1px', width: '32px', background: 'linear-gradient(to right, transparent, var(--gold), transparent)' }} />
       </motion.div>
 
-      {/* Actions */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1.6 }}
-        className="w-full max-w-xs space-y-3">
-        {/* Primary CTA */}
-        <motion.button whileHover={{ y: -2 }} whileTap={{ scale: 0.97 }} onClick={onTry}
+      {/* Center — Value proposition */}
+      <div className="flex-1 flex flex-col justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: dur.verySlow, ease: ease.outSoft, delay: 0.4 }}
+          className="text-center mb-10"
+        >
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="font-sans text-xs uppercase tracking-[0.18em] mb-5"
+            style={{ color: 'var(--gold)' }}
+          >
+            Платформа глубинных инсайтов
+          </motion.p>
+
+          <h1 className="font-serif font-light leading-[1.08] mx-auto max-w-[340px]"
+            style={{ fontSize: '2.4rem', color: 'var(--text-primary)' }}>
+            Ответы, которые
+            <br />невозможно найти
+            <br /><span style={{ color: 'var(--gold)' }}>в поиске</span>
+          </h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            transition={{ delay: 1.0 }}
+            className="mt-5 font-sans text-sm mx-auto max-w-xs leading-[1.7]"
+            style={{ color: 'var(--text-secondary)' }}
+          >
+            Lumier объединяет мощь передового ИИ, мудрость символов
+            и&nbsp;опыт живых экспертов — чтобы дать вам ясность
+            в&nbsp;моменты, когда она важнее всего
+          </motion.p>
+        </motion.div>
+
+        {/* Trust signals */}
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.3, duration: 0.7 }}
+          className="space-y-3 mx-auto max-w-xs w-full mb-10"
+        >
+          {features.map((f, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.4 + i * 0.15 }}
+              className="flex items-center gap-3 rounded-xl px-4 py-3"
+              style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)' }}
+            >
+              <span style={{ color: 'var(--gold)', fontSize: '0.9rem', flexShrink: 0, width: '20px', textAlign: 'center' }}>{f.icon}</span>
+              <p className="font-sans text-xs leading-[1.5]" style={{ color: 'var(--text-secondary)' }}>{f.text}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Bottom — Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.9, duration: 0.7 }}
+        className="w-full max-w-xs mx-auto space-y-3"
+      >
+        {/* Primary — Explore */}
+        <motion.button whileHover={{ y: -2, boxShadow: '0 0 36px rgba(212,149,74,0.28)' }}
+          whileTap={{ scale: 0.97 }} onClick={onTry}
           className="w-full rounded-2xl px-6 py-4 font-sans text-sm font-medium transition-all"
           style={{ background: 'var(--gold)', color: '#0E1520', boxShadow: '0 0 24px rgba(212,149,74,0.20)' }}>
-          Попробовать ✦
+          Узнать больше
         </motion.button>
 
-        {/* Secondary */}
-        <div className="flex gap-2">
-          <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
-            onClick={() => router.push('/login')}
-            className="flex-1 rounded-2xl px-4 py-3 font-sans text-xs transition-all"
-            style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
-            Войти
-          </motion.button>
-          <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
-            onClick={() => router.push('/register')}
-            className="flex-1 rounded-2xl px-4 py-3 font-sans text-xs transition-all"
-            style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
-            Регистрация
-          </motion.button>
-        </div>
+        {/* Register */}
+        <motion.button whileHover={{ y: -1 }} whileTap={{ scale: 0.97 }}
+          onClick={() => router.push('/register')}
+          className="w-full rounded-2xl px-6 py-3.5 font-sans text-sm font-medium transition-all"
+          style={{ background: 'var(--bg-float)', border: '1px solid rgba(212,149,74,0.20)', color: 'var(--gold)' }}>
+          Зарегистрироваться
+        </motion.button>
 
-        {/* Reader/Admin link */}
-        <p className="text-center font-sans text-xs pt-1" style={{ color: 'var(--text-muted)' }}>
-          <button onClick={() => router.push('/reader/login')}
-            className="underline transition-opacity hover:opacity-60" style={{ color: 'var(--text-muted)' }}>
-            Для консультантов
-          </button>
-        </p>
+        {/* Login */}
+        <button
+          onClick={() => router.push('/login')}
+          className="w-full font-sans text-xs transition-opacity hover:opacity-60 py-2"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          Уже есть аккаунт? <span style={{ color: 'var(--gold)' }}>Войти</span>
+        </button>
       </motion.div>
     </motion.div>
   )
