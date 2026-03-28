@@ -237,32 +237,151 @@ function QuestionPhase({
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// PHASE 2 — DRAWING
+// PHASE 2 — DRAWING (with shuffle ritual animation)
 // ═══════════════════════════════════════════════════════════════════════════════
+
+const SHUFFLE_MESSAGES = [
+  'Перемешиваю колоду...',
+  'Настраиваю связь...',
+  'Чувствую энергию вопроса...',
+  'Выбираю карты...',
+]
+
+function ShuffleDeck() {
+  const [msgIdx, setMsgIdx] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => setMsgIdx(i => (i + 1) % SHUFFLE_MESSAGES.length), 2200)
+    return () => clearInterval(t)
+  }, [])
+
+  // 12 "cards" in a deck pile that shuffle around
+  const deckCards = Array.from({ length: 12 }, (_, i) => i)
+
+  return (
+    <div className="flex flex-col items-center gap-8 py-8">
+      {/* Animated deck */}
+      <div className="relative w-28 h-40">
+        {deckCards.map((i) => (
+          <motion.div
+            key={i}
+            className="absolute inset-0 rounded-xl"
+            style={{
+              background: 'linear-gradient(160deg, #152030 0%, #1C2C40 50%, #152030 100%)',
+              border: '1px solid rgba(212,149,74,0.15)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+            }}
+            initial={{ x: 0, y: -i * 1.5, rotate: 0 }}
+            animate={{
+              x: [0, (i % 2 === 0 ? 1 : -1) * (15 + Math.random() * 25), 0, (i % 2 === 0 ? -1 : 1) * (10 + Math.random() * 20), 0],
+              y: [-i * 1.5, -i * 1.5 - 8, -i * 1.5 + 4, -i * 1.5 - 4, -i * 1.5],
+              rotate: [0, (i % 2 === 0 ? 3 : -3), 0, (i % 2 === 0 ? -2 : 2), 0],
+            }}
+            transition={{
+              duration: 2.0 + i * 0.12,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: i * 0.08,
+            }}
+          >
+            <div className="w-full h-full flex items-center justify-center">
+              <span style={{ color: 'rgba(212,149,74,0.25)', fontSize: '1.5rem' }}>✦</span>
+            </div>
+          </motion.div>
+        ))}
+
+        {/* Glow under deck */}
+        <motion.div
+          className="absolute -inset-4 rounded-2xl pointer-events-none"
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ background: 'radial-gradient(ellipse at center, rgba(212,149,74,0.12) 0%, transparent 70%)' }}
+        />
+      </div>
+
+      {/* Shuffling text */}
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={msgIdx}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.4 }}
+          className="font-sans text-sm" style={{ color: 'var(--text-secondary)' }}
+        >
+          {SHUFFLE_MESSAGES[msgIdx]}
+        </motion.p>
+      </AnimatePresence>
+
+      {/* Pulsing dots */}
+      <div className="flex gap-1.5">
+        {[0, 1, 2].map(i => (
+          <motion.div key={i}
+            className="w-1.5 h-1.5 rounded-full"
+            style={{ background: 'var(--gold)' }}
+            animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }}
+            transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.25 }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function DrawingPhase({ cards, revealedCount, apiDone }: { cards: DrawnCard[]; revealedCount: number; apiDone: boolean }) {
   const hasCards = cards.length > 0
+  const allRevealed = revealedCount >= 6
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -20 }}
       transition={{ duration: dur.slow }} className="pt-12 pb-20">
-      <div className="text-center mb-10 space-y-2">
+
+      {/* Title */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="text-center mb-6 space-y-2"
+      >
         <p className="label-overline" style={{ color: 'var(--gold)' }}>
-          {hasCards ? (revealedCount >= 6 ? (apiDone ? 'Карты раскрыты' : 'Считываю энергию...') : 'Карты открываются...') : 'Перемешиваю колоду...'}
+          {!hasCards ? 'Ритуал начался' : allRevealed ? (apiDone ? 'Карты раскрыты' : 'Считываю энергию...') : 'Карты открываются'}
         </p>
         <h2 className="font-serif font-light" style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>
-          Шесть карт расклада
+          {!hasCards ? 'Колода перемешивается' : 'Шесть карт расклада'}
         </h2>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-md mx-auto">
-        {SPREAD_ORDER.map((pos, i) => (
-          <TarotCardUI key={pos} index={i}
-            card={hasCards ? cards.find(c => c.position === pos) : undefined}
-            isRevealed={i < revealedCount} position={pos} />
-        ))}
-      </div>
+      {/* Shuffle animation — shown while waiting for API */}
+      {!hasCards && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.5 }}
+        >
+          <ShuffleDeck />
+        </motion.div>
+      )}
 
-      {!apiDone && hasCards && revealedCount >= 6 && (
+      {/* Card grid — shown once cards arrive */}
+      {hasCards && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-md mx-auto">
+            {SPREAD_ORDER.map((pos, i) => (
+              <TarotCardUI key={pos} index={i}
+                card={cards.find(c => c.position === pos)}
+                isRevealed={i < revealedCount} position={pos} />
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* Reading spinner after all cards revealed */}
+      {!apiDone && hasCards && allRevealed && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center mt-8">
           <div className="inline-flex items-center gap-2">
             <span className="h-3 w-3 rounded-full border-2 border-current border-t-transparent animate-spin" style={{ color: 'var(--gold)' }} />
