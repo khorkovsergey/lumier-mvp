@@ -60,6 +60,9 @@ ${cardList}
 Please provide a complete reading.`
 }
 
+// Increase serverless function timeout (Vercel Pro: up to 60s, Hobby: 10s)
+export const maxDuration = 30
+
 // ─── Route handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: Request) {
@@ -87,7 +90,7 @@ export async function POST(req: Request) {
     // Call Claude
     const anthropic = new Anthropic({ apiKey })
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-sonnet-4-5-20241022',
       max_tokens: 2500,
       system: SYSTEM_PROMPT,
       messages: [{
@@ -121,10 +124,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ drawnCards, reading })
 
-  } catch (err) {
-    console.error('Tarot reading error:', err)
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('Tarot reading error:', message, err)
     return NextResponse.json(
-      { error: 'Произошла ошибка при создании расклада. Попробуйте ещё раз.' },
+      { error: `Ошибка: ${message}` },
       { status: 500 },
     )
   }
