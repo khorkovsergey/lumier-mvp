@@ -98,7 +98,7 @@ function drawSmoothLine(
       const prev = pts[k - 1], curr = pts[k]
       ctx.quadraticCurveTo(prev.x, prev.y, (prev.x + curr.x) / 2, (prev.y + curr.y) / 2)
     }
-    ctx.strokeStyle = `rgba(196,150,74,${alpha.toFixed(3)})`
+    ctx.strokeStyle = `rgba(212,149,74,${alpha.toFixed(3)})`
     ctx.lineWidth   = thickness * (0.4 + t1 * 0.8)
     ctx.lineCap = 'round'; ctx.lineJoin = 'round'
     ctx.stroke()
@@ -254,13 +254,13 @@ function run(cv: HTMLCanvasElement, ctx: CanvasRenderingContext2D): () => void {
       const ha = ln.baseOpacity * lifeFade * (ln.isMajor ? 2.2 : 1.6)
       if (ln.isMajor) {
         const g = ctx.createRadialGradient(ln.x, ln.y, 0, ln.x, ln.y, ln.thickness * 5)
-        g.addColorStop(0, `rgba(196,150,74,${Math.min(ha * 0.6, 0.5).toFixed(3)})`)
-        g.addColorStop(1, 'rgba(196,150,74,0)')
+        g.addColorStop(0, `rgba(212,149,74,${Math.min(ha * 0.6, 0.5).toFixed(3)})`)
+        g.addColorStop(1, 'rgba(212,149,74,0)')
         ctx.beginPath(); ctx.arc(ln.x, ln.y, ln.thickness * 5, 0, Math.PI * 2)
         ctx.fillStyle = g; ctx.fill()
       }
       ctx.beginPath(); ctx.arc(ln.x, ln.y, ln.thickness * 1.4, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(196,150,74,${Math.min(ha, 0.7).toFixed(3)})`; ctx.fill()
+      ctx.fillStyle = `rgba(212,149,74,${Math.min(ha, 0.7).toFixed(3)})`; ctx.fill()
     }
     lines = lines.filter(l => !dead.includes(l.id))
 
@@ -311,15 +311,15 @@ function run(cv: HTMLCanvasElement, ctx: CanvasRenderingContext2D): () => void {
         if (rA <= 0) continue
         const r = ev.radius * (1 + ri * 0.6) + rp * ev.radius * 3
         ctx.beginPath(); ctx.arc(ev.x, ev.y, r, 0, Math.PI * 2)
-        ctx.strokeStyle = `rgba(196,150,74,${(rA * (0.55 - ri * 0.12)).toFixed(3)})`
+        ctx.strokeStyle = `rgba(212,149,74,${(rA * (0.55 - ri * 0.12)).toFixed(3)})`
         ctx.lineWidth   = 0.8 - ri * 0.15; ctx.stroke()
       }
       const hR = ev.radius * 2 + p * ev.radius * 4
       const g  = ctx.createRadialGradient(ev.x, ev.y, 0, ev.x, ev.y, hR)
-      g.addColorStop(0, `rgba(196,150,74,${(alpha * 0.28).toFixed(3)})`); g.addColorStop(0.5, `rgba(196,150,74,${(alpha * 0.09).toFixed(3)})`); g.addColorStop(1, 'rgba(196,150,74,0)')
+      g.addColorStop(0, `rgba(212,149,74,${(alpha * 0.28).toFixed(3)})`); g.addColorStop(0.5, `rgba(212,149,74,${(alpha * 0.09).toFixed(3)})`); g.addColorStop(1, 'rgba(212,149,74,0)')
       ctx.beginPath(); ctx.arc(ev.x, ev.y, hR, 0, Math.PI * 2); ctx.fillStyle = g; ctx.fill()
       ctx.beginPath(); ctx.arc(ev.x, ev.y, 1.8 + ev.rings * 0.4, 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(220,175,100,${Math.min(alpha * (ev.rings > 1 ? 1.0 : 0.75), 0.95).toFixed(3)})`; ctx.fill()
+      ctx.fillStyle = `rgba(230,180,100,${Math.min(alpha * (ev.rings > 1 ? 1.0 : 0.75), 0.95).toFixed(3)})`; ctx.fill()
     }
 
     // ── Letter collision flashes ────────────────────────────────────
@@ -333,9 +333,9 @@ function run(cv: HTMLCanvasElement, ctx: CanvasRenderingContext2D): () => void {
         const bp  = 1 - p / 0.25
         const bR  = cf.r0 * (1 + p * 5)
         const bg  = ctx.createRadialGradient(cf.x, cf.y, 0, cf.x, cf.y, bR)
-        bg.addColorStop(0,   `rgba(255,235,180,${(bp * 0.95).toFixed(3)})`)
+        bg.addColorStop(0,   `rgba(255,240,200,${(bp * 0.95).toFixed(3)})`)
         bg.addColorStop(0.3, `rgba(220,175,80,${(bp * 0.55).toFixed(3)})`)
-        bg.addColorStop(1,   'rgba(196,150,74,0)')
+        bg.addColorStop(1,   'rgba(212,149,74,0)')
         ctx.beginPath(); ctx.arc(cf.x, cf.y, bR, 0, Math.PI * 2)
         ctx.fillStyle = bg; ctx.fill()
       }
@@ -349,7 +349,7 @@ function run(cv: HTMLCanvasElement, ctx: CanvasRenderingContext2D): () => void {
         const r = cf.r0 * (1.2 + ri * 0.7) + rp * cf.r0 * 5
 
         ctx.beginPath(); ctx.arc(cf.x, cf.y, r, 0, Math.PI * 2)
-        ctx.strokeStyle = `rgba(220,175,100,${rAlpha.toFixed(3)})`
+        ctx.strokeStyle = `rgba(230,180,100,${rAlpha.toFixed(3)})`
         ctx.lineWidth   = 1.4 - ri * 0.35; ctx.stroke()
       }
 
@@ -368,7 +368,7 @@ function run(cv: HTMLCanvasElement, ctx: CanvasRenderingContext2D): () => void {
       const p     = sp.life / sp.maxLife
       const alpha = (1 - p) * (1 - p) * 0.82
       ctx.beginPath(); ctx.arc(sp.x, sp.y, sp.size * (1 - p * 0.5), 0, Math.PI * 2)
-      ctx.fillStyle = `rgba(230,185,110,${alpha.toFixed(3)})`; ctx.fill()
+      ctx.fillStyle = `rgba(235,190,115,${alpha.toFixed(3)})`; ctx.fill()
     }
 
     raf = requestAnimationFrame(tick)

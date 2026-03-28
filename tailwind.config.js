@@ -10,35 +10,42 @@ module.exports = {
   ],
   theme: {
     extend: {
-      // ── Color system ────────────────────────────────────────
+      // ── Color system — Deep Ocean at Night ──────────────────
       colors: {
-        // Base surfaces (elevation order: 50 → 100 → 200)
+        // Ocean depth surfaces (elevation: 300 → 200 → 100)
         ivory: {
-          50:  '#FDFCF8',   // lightest tone (spare)
-          100: '#FAF7F0',   // floating surface (modals, bubbles)
-          200: '#F4EDE0',   // page bg
-          300: '#EDE3CC',   // elevated surface (cards)
+          50:  '#E8EFF8',   // text-primary shade (for rare bg use)
+          100: '#1C2C40',   // bg-float — near surface
+          200: '#152030',   // bg-raised — mid-depth
+          300: '#0E1520',   // bg-base — ocean floor
         },
-        // Single gold accent — use 400 everywhere; 300/500 for lighter/darker
+        // Warm accent — emotion, human side
         gold: {
-          200: '#E8D4A8',   // very subtle background tint
-          300: '#D4AF78',   // light accent, borders
-          400: '#C4964A',   // primary accent — THE gold
-          500: '#A87D34',   // pressed state
-          600: '#8A6320',   // text on light
+          200: '#2A1E10',   // very subtle warm tint on dark
+          300: '#A87838',   // darker gold (borders, pressed)
+          400: '#D4954A',   // primary accent — THE gold
+          500: '#B87D3A',   // pressed state
+          600: '#EBB978',   // lighter gold (text on dark)
         },
-        // Neutral text scale
+        // Neutral scale (inverted for dark theme)
         ink: {
-          50:  '#F7F5F2',
-          100: '#EAE6E1',
-          200: '#D5CFC8',
-          300: '#B5ADA4',
-          400: '#8C8279',
-          500: '#6B6259',
-          600: '#4A4340',
-          700: '#302B28',
-          800: '#1E1A18',
-          900: '#120F0D',
+          50:  '#0E1520',   // darkest (matches bg-base)
+          100: '#152030',
+          200: '#1C2C40',
+          300: '#445066',   // text-muted
+          400: '#6B7F96',
+          500: '#8899AF',   // text-secondary
+          600: '#B0C0D5',
+          700: '#D0DAEB',
+          800: '#E8EFF8',   // text-primary
+          900: '#F5F8FF',   // near-white
+        },
+        // Cool accent — clarity, logic
+        ocean: {
+          300: '#345A6E',   // dark muted
+          400: '#4A8FA8',   // primary ocean
+          500: '#60B8CE',   // lighter ocean
+          600: '#88D0E2',   // light ocean (text)
         },
       },
 
@@ -86,11 +93,12 @@ module.exports = {
 
       // ── Box shadow ───────────────────────────────────────────
       boxShadow: {
-        'surface':  '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03)',
-        'card':     '0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)',
-        'card-hover':'0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
-        'selected': '0 4px 20px rgba(196,150,74,0.14), 0 1px 4px rgba(196,150,74,0.1)',
-        'float':    '0 16px 48px rgba(0,0,0,0.10), 0 4px 16px rgba(0,0,0,0.06)',
+        'surface':  '0 1px 3px rgba(0,0,0,0.30), 0 1px 2px rgba(0,0,0,0.20)',
+        'card':     '0 2px 16px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.04) inset',
+        'card-hover':'0 8px 32px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.06) inset',
+        'selected': '0 4px 24px rgba(212,149,74,0.18), 0 0 0 1px rgba(212,149,74,0.12)',
+        'float':    '0 16px 48px rgba(0,0,0,0.50), 0 4px 16px rgba(0,0,0,0.30)',
+        'gold-glow':'0 0 24px rgba(212,149,74,0.20), 0 4px 16px rgba(0,0,0,0.35)',
         'none': 'none',
       },
 

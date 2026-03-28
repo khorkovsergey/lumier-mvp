@@ -7,10 +7,10 @@ import { pageIn, staggerNormal, revealNormal, revealSubtle } from '@/shared/anim
 import Link from 'next/link'
 
 const STATUS_LABELS = {
-  PENDING:   { label: 'Ожидание',    color: '#B5ADA4', bg: 'var(--bg-raised)' },
-  ACTIVE:    { label: 'В процессе',  color: 'var(--gold)', bg: 'rgba(196,150,74,0.08)' },
-  COMPLETED: { label: 'Завершено',   color: '#16a34a', bg: '#f0fdf4' },
-  CANCELLED: { label: 'Отменено',    color: '#ef4444', bg: '#fef2f2' },
+  PENDING:   { label: 'Ожидание',    color: 'var(--text-muted)',  bg: 'var(--bg-raised)' },
+  ACTIVE:    { label: 'В процессе',  color: 'var(--gold)',        bg: 'rgba(212,149,74,0.10)' },
+  COMPLETED: { label: 'Завершено',   color: '#4ADE80',            bg: 'rgba(74,222,128,0.10)' },
+  CANCELLED: { label: 'Отменено',    color: '#F87171',            bg: 'rgba(248,113,113,0.10)' },
 }
 
 const TYPE_LABELS = {
@@ -81,12 +81,12 @@ export function CabinetClient({ user, sessions }: { user: User; sessions: Sessio
         <motion.div variants={revealNormal} initial="hidden" animate="visible">
           <Link href="/question">
             <div className="flex items-center justify-between rounded-xl px-5 py-4 transition-all cursor-pointer"
-              style={{ background: 'var(--gold)', boxShadow: '0 2px 12px rgba(196,150,74,0.3)' }}>
+              style={{ background: 'var(--gold)', boxShadow: '0 0 24px rgba(212,149,74,0.20), 0 4px 16px rgba(0,0,0,0.35)' }}>
               <div>
-                <p className="font-serif text-lg font-medium text-white">Новый расклад</p>
-                <p className="font-sans text-xs text-white/70 mt-0.5">Задать вопрос читателю</p>
+                <p className="font-serif text-lg font-medium" style={{ color: '#0E1520' }}>Новый расклад</p>
+                <p className="font-sans text-xs mt-0.5" style={{ color: 'rgba(14,21,32,0.6)' }}>Задать вопрос читателю</p>
               </div>
-              <span className="text-white text-xl">→</span>
+              <span style={{ color: '#0E1520', fontSize: '1.25rem' }}>→</span>
             </div>
           </Link>
         </motion.div>
@@ -149,7 +149,7 @@ function SessionCard({ session, onClick }: { session: Session; onClick: () => vo
       whileHover={{ y: -1 }}
       whileTap={{ scale: 0.995 }}
       className="cursor-pointer rounded-xl p-5 transition-all"
-      style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+      style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)', boxShadow: '0 2px 16px rgba(0,0,0,0.35)' }}>
 
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -180,9 +180,9 @@ function SessionCard({ session, onClick }: { session: Session; onClick: () => vo
 
       {hasResult && (
         <div className="mt-3 flex items-center gap-2 rounded-lg px-3 py-2"
-          style={{ background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-          <span style={{ color: '#16a34a' }} className="text-xs">✓</span>
-          <p className="font-sans text-xs" style={{ color: '#15803d' }}>Расклад готов — нажмите для просмотра</p>
+          style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.15)' }}>
+          <span style={{ color: '#4ADE80' }} className="text-xs">✓</span>
+          <p className="font-sans text-xs" style={{ color: '#4ADE80' }}>Расклад готов — нажмите для просмотра</p>
         </div>
       )}
     </motion.div>

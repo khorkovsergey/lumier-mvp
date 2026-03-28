@@ -2,45 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design tokens ──────────────────────────────────────────────────────── */
+/* ─── Design tokens — Deep Ocean at Night ────────────────────────────────── */
 :root {
-  /* Surfaces */
-  --bg-base:      #F4EDE0;
-  --bg-raised:    #EDE3CC;
-  --bg-float:     #FAF7F0;
-  /* Accent */
-  --gold:         #C4964A;
-  --gold-light:   #D4AF78;
-  --gold-subtle:  #F0E6D3;
-  /* Text */
-  --text-primary:   #1E1A18;
-  --text-secondary: #6B6259;
-  --text-muted:     #B5ADA4;
-  /* Border */
-  --border-subtle:  #EDE8E2;
-  --border-default: #DDD5CC;
+  /* ── Surfaces (ocean depth system) ──────────────────────────────── */
+  --bg-base:        #0E1520;   /* ocean floor — deepest layer          */
+  --bg-raised:      #152030;   /* mid-depth — cards, panels            */
+  --bg-float:       #1C2C40;   /* near surface — modals, popovers      */
+  --bg-hover:       #1F3048;   /* interactive hover state              */
+
+  /* ── Warm accent (emotion, human) ───────────────────────────────── */
+  --gold:           #D4954A;   /* amber — primary CTAs, highlights     */
+  --gold-light:     #EBB978;   /* lighter gold — borders, hover states */
+  --gold-subtle:    rgba(212, 149, 74, 0.14);
+  --gold-glow:      rgba(212, 149, 74, 0.22);
+
+  /* ── Text ────────────────────────────────────────────────────────── */
+  --text-primary:   #E8EFF8;   /* soft white with blue warmth          */
+  --text-secondary: #8899AF;   /* muted blue-gray                      */
+  --text-muted:     #445066;   /* barely visible metadata              */
+
+  /* ── Borders ─────────────────────────────────────────────────────── */
+  --border-subtle:  rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.12);
 }
 
 /* ─── Base ───────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
 body {
   background-color: var(--bg-base);
+  color: var(--text-primary);
   overscroll-behavior: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Atmospheric depth — very subtle warm top-glow */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 110% 55% at 50% -5%, rgba(212,149,74,0.05) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 * { -webkit-tap-highlight-color: transparent; }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 2px; height: 2px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #D4AF7833; border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(212,149,74,0.20); border-radius: 4px; }
 .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
 
 /* ─── Selection ──────────────────────────────────────────────────────────── */
-::selection { background: #C4964A22; color: var(--text-primary); }
+::selection { background: rgba(212,149,74,0.28); color: var(--text-primary); }
 
 /* ─── Safe areas ─────────────────────────────────────────────────────────── */
 .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom, 0px), 20px); }
@@ -49,7 +67,6 @@ body {
 /* ─── Typography helpers ─────────────────────────────────────────────────── */
 .font-serif { font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "onum" 1; }
 
-/* Overline label — use for section labels */
 .label-overline {
   font-family: var(--font-jost);
   font-size: 0.6875rem;
@@ -64,7 +81,7 @@ body {
   font-family: var(--font-jost);
   font-size: 0.9375rem;
   line-height: 1.85;
-  color: #4A4340;
+  color: var(--text-secondary);
   margin-bottom: 1.1rem;
 }
 .reading-prose strong {
@@ -115,33 +132,79 @@ body {
   flex: 0;
 }
 
-/* ─── Shimmer loading ────────────────────────────────────────────────────── */
+/* ─── Shimmer loading (dark) ─────────────────────────────────────────────── */
 .shimmer {
-  background: linear-gradient(90deg, #E8DECA 25%, #F0E6D4 50%, #E8DECA 75%);
+  background: linear-gradient(90deg, #152030 25%, #1C2C40 50%, #152030 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s linear infinite;
 }
 
-/* ─── Glass surface ──────────────────────────────────────────────────────── */
+/* ─── Glass surface (dark frosted) ──────────────────────────────────────── */
 .glass {
-  background: rgba(244, 237, 224, 0.92);
-  backdrop-filter: blur(16px) saturate(1.4);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  background: rgba(14, 21, 32, 0.88);
+  backdrop-filter: blur(24px) saturate(2.0);
+  -webkit-backdrop-filter: blur(24px) saturate(2.0);
 }
 
-/* ─── Consultation bubble (reader) ──────────────────────────────────────── */
+/* ─── Card surface — premium depth effect ───────────────────────────────── */
+.card-depth {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.05) inset,
+    0 2px 20px rgba(0,0,0,0.40);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.card-depth:hover {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.07) inset,
+    0 6px 32px rgba(0,0,0,0.50),
+    0 0 0 1px rgba(212,149,74,0.10);
+}
+
+/* ─── Gold glow — for primary CTAs ──────────────────────────────────────── */
+.gold-glow {
+  box-shadow: 0 0 24px rgba(212,149,74,0.20), 0 4px 16px rgba(0,0,0,0.35);
+}
+.gold-glow:hover {
+  box-shadow: 0 0 32px rgba(212,149,74,0.28), 0 6px 20px rgba(0,0,0,0.40);
+}
+
+/* ─── Input focus — soft gold ring ──────────────────────────────────────── */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: rgba(212,149,74,0.45) !important;
+  box-shadow: 0 0 0 3px rgba(212,149,74,0.10);
+}
+
+/* ─── Consultation bubbles ───────────────────────────────────────────────── */
 .bubble-reader {
-  background: #FAF7F0;
+  background: var(--bg-raised);
   border: 1px solid var(--border-subtle);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.25);
 }
 .bubble-user {
-  background: var(--text-primary);
-  color: #FAF7F0;
+  background: var(--gold);
+  color: #0E1520;
 }
 
-/* ─── Gold line accent ───────────────────────────────────────────────────── */
+/* ─── Gold rule accent ───────────────────────────────────────────────────── */
 .gold-rule {
   height: 1px;
   background: linear-gradient(to right, transparent, var(--gold-light), transparent);
+  opacity: 0.4;
+}
+
+/* ─── Keyframes ──────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.04); }
+}
+@keyframes scan {
+  0%   { transform: translateY(0%); }
+  100% { transform: translateY(100%); }
 }

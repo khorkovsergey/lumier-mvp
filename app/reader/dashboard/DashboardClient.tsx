@@ -8,10 +8,10 @@ import { acceptSession } from '@/server/actions/reader'
 import { pageIn, staggerNormal, revealNormal, revealSubtle } from '@/shared/animations/variants'
 
 const STATUS_LABELS = {
-  PENDING:   { label: 'Новый',       color: 'var(--gold)',  bg: 'rgba(196,150,74,0.08)' },
-  ACTIVE:    { label: 'В работе',    color: '#2563eb',      bg: '#eff6ff' },
-  COMPLETED: { label: 'Завершён',    color: '#16a34a',      bg: '#f0fdf4' },
-  CANCELLED: { label: 'Отменён',     color: '#ef4444',      bg: '#fef2f2' },
+  PENDING:   { label: 'Новый',       color: 'var(--gold)',  bg: 'rgba(212,149,74,0.10)' },
+  ACTIVE:    { label: 'В работе',    color: '#60B8CE',      bg: 'rgba(96,184,206,0.10)' },
+  COMPLETED: { label: 'Завершён',    color: '#4ADE80',      bg: 'rgba(74,222,128,0.10)' },
+  CANCELLED: { label: 'Отменён',     color: '#F87171',      bg: 'rgba(248,113,113,0.10)' },
 }
 
 const TYPE_LABELS = { ASYNC: 'Письменный', LIVE: 'Живой чат' }
@@ -92,8 +92,8 @@ export function DashboardClient({ user, sessions }: { user: User; sessions: Sess
           className="grid grid-cols-3 gap-3">
           {[
             { label: 'Новых', value: pending.length, color: 'var(--gold)' },
-            { label: 'В работе', value: active.length, color: '#2563eb' },
-            { label: 'Заработано', value: `$${totalEarned}`, color: '#16a34a' },
+            { label: 'В работе', value: active.length, color: '#60B8CE' },
+            { label: 'Заработано', value: `$${totalEarned}`, color: '#4ADE80' },
           ].map((stat) => (
             <motion.div key={stat.label} variants={revealNormal}
               className="rounded-xl px-4 py-4 text-center"
@@ -110,7 +110,7 @@ export function DashboardClient({ user, sessions }: { user: User; sessions: Sess
             <motion.div variants={revealSubtle} className="flex items-center gap-2 mb-3">
               <p className="label-overline" style={{ color: 'var(--text-muted)' }}>Новые запросы</p>
               <span className="rounded-full px-2 py-0.5 font-sans text-xs font-medium"
-                style={{ background: 'rgba(196,150,74,0.1)', color: 'var(--gold)' }}>
+                style={{ background: 'rgba(212,149,74,0.12)', color: 'var(--gold)' }}>
                 {pending.length}
               </span>
             </motion.div>
@@ -141,7 +141,7 @@ export function DashboardClient({ user, sessions }: { user: User; sessions: Sess
                 <button key={f} onClick={() => setFilter(f)}
                   className="rounded-full px-3 py-1 font-sans text-xs transition-all"
                   style={filter === f
-                    ? { background: 'var(--text-primary)', color: '#FAF7F0' }
+                    ? { background: 'var(--gold)', color: '#0E1520' }
                     : { background: 'var(--bg-raised)', color: 'var(--text-muted)', border: '1px solid var(--border-subtle)' }
                   }>
                   {f === 'ALL' ? 'Все' : f === 'ACTIVE' ? 'В работе' : 'Завершённые'}
