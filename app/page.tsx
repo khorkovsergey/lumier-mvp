@@ -50,7 +50,7 @@ export default function OnboardingPage() {
       <div className="pointer-events-none fixed inset-0 z-0"
         style={{ background: 'radial-gradient(ellipse 80% 50% at 50% 25%, rgba(212,149,74,0.05) 0%, transparent 60%)' }} />
 
-      <div className="relative z-10">
+      <div className="relative z-20">
         <AnimatePresence mode="wait">
           {screen === 'hero'     && <HeroScreen     key="hero"     onTry={() => setScreen('explain')} router={router} />}
           {screen === 'explain'  && <ExplainScreen   key="explain"  onContinue={() => setScreen('question')} />}
@@ -125,9 +125,9 @@ function HeroScreen({ onTry, router }: { onTry: () => void; router: ReturnType<t
 
           <h1 className="font-serif font-light leading-[1.08]"
             style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', color: 'var(--text-primary)' }}>
-            Ответы, которые
-            <br />невозможно найти
-            <br /><span style={{ color: 'var(--gold)' }}>в поиске</span>
+            Ответы от передовых
+            <br />решений ИИ и лучших
+            <br /><span style={{ color: 'var(--gold)' }}>экспертов</span>
           </h1>
 
           <motion.p
@@ -137,9 +137,9 @@ function HeroScreen({ onTry, router }: { onTry: () => void; router: ReturnType<t
             className="mt-5 font-sans text-sm md:text-base leading-[1.7] max-w-md"
             style={{ color: 'var(--text-secondary)' }}
           >
-            Lumier объединяет мощь передового ИИ, мудрость символов
-            и&nbsp;опыт живых экспертов — чтобы дать вам ясность
-            в&nbsp;моменты, когда она важнее всего
+            Lumier объединяет мощь передового ИИ, мистические символы
+            и&nbsp;опыт живых экспертов — чтобы дать вам ответы
+            в&nbsp;моменты, когда они важнее всего
           </motion.p>
 
           {/* CTA buttons — below text on all screens */}

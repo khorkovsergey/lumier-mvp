@@ -398,7 +398,7 @@ export function LifeLinesCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="pointer-events-none absolute inset-0 w-full h-full"
+      className="pointer-events-none absolute inset-0 w-full h-full z-[1]"
     />
   )
 }
