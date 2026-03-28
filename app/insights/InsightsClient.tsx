@@ -60,7 +60,7 @@ export function InsightsClient({ articles }: Props) {
         className="sticky top-0 z-20 glass"
         style={{ borderBottom: '1px solid var(--border-subtle)' }}
       >
-        <div className="mx-auto max-w-xl px-6 py-4 flex items-center justify-between">
+        <div className="mx-auto max-w-xl md:max-w-3xl px-6 py-4 flex items-center justify-between">
           <button
             onClick={() => router.back()}
             className="font-sans text-xs uppercase tracking-widest transition-opacity hover:opacity-60"
@@ -74,7 +74,7 @@ export function InsightsClient({ articles }: Props) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-xl px-6">
+      <div className="mx-auto max-w-xl md:max-w-3xl px-6">
         {/* Заголовок раздела */}
         <motion.div
           variants={staggerNormal}

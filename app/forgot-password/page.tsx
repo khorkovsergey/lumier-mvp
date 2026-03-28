@@ -35,7 +35,7 @@ export default function ForgotPasswordPage() {
       className="flex min-h-screen flex-col items-center justify-center px-6"
       style={{ background: 'var(--bg-base)' }}>
 
-      <div className="w-full max-w-sm space-y-8">
+      <div className="w-full max-w-sm md:max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-3">
           <button onClick={() => router.push('/login')}

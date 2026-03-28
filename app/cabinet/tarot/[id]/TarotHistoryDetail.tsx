@@ -39,7 +39,7 @@ export function TarotHistoryDetail({ reading }: { reading: Reading }) {
 
       {/* Header */}
       <div className="glass sticky top-0 z-10" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="mx-auto max-w-2xl px-6 py-4 flex items-center justify-between">
+        <div className="mx-auto max-w-2xl md:max-w-3xl px-6 py-4 flex items-center justify-between">
           <button onClick={() => router.push('/cabinet')}
             className="font-sans text-xs uppercase tracking-widest transition-opacity hover:opacity-60"
             style={{ color: 'var(--text-muted)' }}>
@@ -51,7 +51,7 @@ export function TarotHistoryDetail({ reading }: { reading: Reading }) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-2xl px-6 py-8 space-y-8">
+      <div className="mx-auto max-w-2xl md:max-w-3xl px-6 py-8 space-y-8">
         {/* Summary */}
         <motion.div variants={staggerNormal} initial="hidden" animate="visible" className="text-center space-y-3">
           <motion.p variants={revealSubtle} className="label-overline" style={{ color: 'var(--gold)' }}>

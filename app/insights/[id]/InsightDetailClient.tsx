@@ -61,7 +61,7 @@ export function InsightDetailClient({ insight }: { insight: Insight }) {
         className="sticky top-0 z-10 glass px-6 py-4"
         style={{ borderBottom: '1px solid var(--border-subtle)' }}
       >
-        <div className="mx-auto max-w-lg flex items-center justify-between">
+        <div className="mx-auto max-w-lg md:max-w-3xl flex items-center justify-between">
           <button
             onClick={() => router.back()}
             className="font-sans text-xs uppercase tracking-widest transition-opacity hover:opacity-60"
@@ -75,7 +75,7 @@ export function InsightDetailClient({ insight }: { insight: Insight }) {
         </div>
       </div>
 
-      <div className="mx-auto max-w-lg px-6">
+      <div className="mx-auto max-w-lg md:max-w-3xl px-6">
         {/* Заголовок */}
         <motion.div
           variants={staggerNormal}

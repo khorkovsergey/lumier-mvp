@@ -111,7 +111,7 @@ export function TarotClient() {
     <div className="min-h-screen relative" style={{ background: 'var(--bg-base)' }}>
       {/* Header */}
       <div className="glass sticky top-0 z-30" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="mx-auto max-w-2xl px-6 py-4 flex items-center justify-between">
+        <div className="mx-auto max-w-2xl md:max-w-3xl px-6 py-4 flex items-center justify-between">
           <button onClick={() => router.back()} className="font-sans text-xs uppercase tracking-widest transition-opacity hover:opacity-60" style={{ color: 'var(--text-muted)' }}>
             ← Назад
           </button>
@@ -122,7 +122,7 @@ export function TarotClient() {
       {/* Ambient */}
       <div className="pointer-events-none fixed inset-0 z-0" style={{ background: 'radial-gradient(ellipse 80% 50% at 50% 30%, rgba(212,149,74,0.06) 0%, transparent 60%)' }} />
 
-      <div className="relative z-10 mx-auto max-w-2xl px-6">
+      <div className="relative z-10 mx-auto max-w-2xl md:max-w-3xl px-6">
         <AnimatePresence mode="wait">
           {phase === 'question' && (
             <QuestionPhase key="q" question={question} setQuestion={setQuestion}

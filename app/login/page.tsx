@@ -30,7 +30,7 @@ export default function LoginPage() {
       className="flex min-h-screen flex-col items-center justify-center px-6"
       style={{ background: 'var(--bg-base)' }}>
 
-      <div className="w-full max-w-sm">
+      <div className="w-full max-w-sm md:max-w-md">
         {/* Логотип */}
         <motion.div variants={staggerNormal} initial="hidden" animate="visible" className="mb-10 text-center">
           <Link href="/">

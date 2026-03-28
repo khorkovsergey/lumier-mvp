@@ -56,7 +56,7 @@ export function CabinetClient({ user, sessions, tarotHistory = [] }: { user: Use
 
       {/* Шапка */}
       <div className="glass sticky top-0 z-10" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="mx-auto max-w-xl flex items-center justify-between px-6 py-4">
+        <div className="mx-auto max-w-xl md:max-w-3xl flex items-center justify-between px-6 py-4">
           <p className="font-serif text-lg font-light" style={{ color: 'var(--text-primary)', letterSpacing: '0.04em' }}>
             Lumier
           </p>
@@ -72,7 +72,7 @@ export function CabinetClient({ user, sessions, tarotHistory = [] }: { user: Use
         </div>
       </div>
 
-      <div className="mx-auto max-w-xl px-6 py-8 space-y-8">
+      <div className="mx-auto max-w-xl md:max-w-3xl px-6 py-8 space-y-8">
 
         {/* Приветствие */}
         <motion.div variants={staggerNormal} initial="hidden" animate="visible">
