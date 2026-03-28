@@ -8,8 +8,8 @@ export async function sendPasswordResetEmail(to: string, token: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://lumierinsight.com'
   const resetUrl = `${baseUrl}/reset-password?token=${token}`
 
-  await resend.emails.send({
-    from: 'Lumier <info@lumierinsight.com>',
+  const result = await resend.emails.send({
+    from: process.env.RESEND_FROM || 'Lumier <onboarding@resend.dev>',
     to,
     subject: 'Восстановление пароля — Lumier',
     html: `
@@ -36,4 +36,8 @@ export async function sendPasswordResetEmail(to: string, token: string) {
       </div>
     `,
   })
+
+  if (result.error) {
+    throw new Error(`Resend error: ${result.error.message}`)
+  }
 }
