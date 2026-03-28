@@ -29,13 +29,29 @@ export default function OnboardingPage() {
   function validateStep2() {
     const errs: typeof errors = {}
     if (!dob) { errs.dob = 'Пожалуйста, укажите дату рождения'; setErrors(errs); return false }
-    const parsed = new Date(dob)
-    const age = new Date().getFullYear() - parsed.getFullYear()
-    if (isNaN(parsed.getTime())) errs.dob = 'Некорректная дата'
-    else if (age < 18) errs.dob = 'Вам должно быть не менее 18 лет'
-    else if (age > 120) errs.dob = 'Пожалуйста, введите корректную дату'
+    const parts = dob.split('.')
+    if (parts.length !== 3) { errs.dob = 'Формат: дд.мм.гггг'; setErrors(errs); return false }
+    const [dd, mm, yyyy] = parts.map(Number)
+    const parsed = new Date(yyyy, mm - 1, dd)
+    if (isNaN(parsed.getTime()) || parsed.getDate() !== dd || parsed.getMonth() !== mm - 1) {
+      errs.dob = 'Некорректная дата'
+    } else {
+      const age = new Date().getFullYear() - yyyy
+      if (age < 18) errs.dob = 'Вам должно быть не менее 18 лет'
+      else if (age > 120) errs.dob = 'Пожалуйста, введите корректную дату'
+    }
     setErrors(errs)
     return !errs.dob
+  }
+
+  function formatDobInput(value: string) {
+    // Allow only digits and dots, auto-insert dots
+    const digits = value.replace(/[^\d]/g, '')
+    let formatted = ''
+    if (digits.length <= 2) formatted = digits
+    else if (digits.length <= 4) formatted = digits.slice(0, 2) + '.' + digits.slice(2)
+    else formatted = digits.slice(0, 2) + '.' + digits.slice(2, 4) + '.' + digits.slice(4, 8)
+    setDob(formatted)
   }
 
   async function handleContinue() {
@@ -43,7 +59,10 @@ export default function OnboardingPage() {
     if (!validateStep2()) return
     setLoading(true)
     try {
-      const result = await createUser({ name: name.trim(), dateOfBirth: dob })
+      // Convert dd.mm.yyyy → ISO string for backend
+      const [dd, mm, yyyy] = dob.split('.').map(Number)
+      const isoDate = new Date(yyyy, mm - 1, dd).toISOString().split('T')[0]
+      const result = await createUser({ name: name.trim(), dateOfBirth: isoDate })
       if (result.success) {
         setUser({ id: result.user.id, name: result.user.name, dateOfBirth: dob })
         markComplete('onboarding')
@@ -165,11 +184,13 @@ export default function OnboardingPage() {
               <motion.div variants={revealNormal}>
                 <Input
                   label="Дата рождения"
-                  type="date"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="дд.мм.гггг"
                   value={dob}
-                  onChange={(e) => setDob(e.target.value)}
+                  onChange={(e) => formatDobInput(e.target.value)}
                   error={errors.dob}
-                  max={new Date().toISOString().split('T')[0]}
+                  maxLength={10}
                 />
               </motion.div>
               <motion.div
