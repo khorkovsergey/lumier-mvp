@@ -507,7 +507,7 @@ function ReadingPhase({ cards, reading, question, onNewReading }: {
         <p className="label-overline" style={{ color: 'var(--gold)' }}>Ваш расклад</p>
         {clean(reading.summary) && (
           <blockquote className="font-serif font-light italic leading-relaxed mx-auto max-w-md"
-            style={{ fontSize: '1.25rem', color: 'var(--text-primary)' }}>
+            style={{ fontSize: '1.4rem', color: 'var(--text-primary)' }}>
             &ldquo;{clean(reading.summary)}&rdquo;
           </blockquote>
         )}
@@ -559,16 +559,16 @@ function ReadingPhase({ cards, reading, question, onNewReading }: {
               transition={{ delay: 1.1 + i * 0.08 }}
               className="rounded-xl px-4 py-3"
               style={{ background: 'var(--bg-raised)', border: '1px solid var(--border-subtle)' }}>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-sans text-[0.55rem] uppercase tracking-wider" style={{ color: 'var(--gold)' }}>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="font-sans text-xs uppercase tracking-wider" style={{ color: 'var(--gold)' }}>
                   {ci.position}
                 </span>
                 <span style={{ color: 'var(--border-default)' }}>·</span>
-                <span className="font-serif text-xs font-medium" style={{ color: 'var(--text-primary)' }}>
+                <span className="font-serif text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                   {ci.name}
                 </span>
               </div>
-              <p className="font-sans text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              <p className="font-sans text-base leading-[1.8]" style={{ color: 'var(--text-secondary)' }}>
                 {clean(ci.insight)}
               </p>
             </motion.div>
@@ -583,7 +583,7 @@ function ReadingPhase({ cards, reading, question, onNewReading }: {
           style={{ background: 'var(--bg-float)', border: '1px solid rgba(212,149,74,0.15)', boxShadow: '0 0 32px rgba(212,149,74,0.06)' }}>
           <p className="label-overline" style={{ color: 'var(--gold)' }}>Совет карт</p>
           <p className="font-serif font-light leading-relaxed mx-auto max-w-md"
-            style={{ fontSize: '1rem', color: 'var(--text-primary)' }}>
+            style={{ fontSize: '1.15rem', color: 'var(--text-primary)' }}>
             {clean(reading.advice)}
           </p>
         </motion.div>

@@ -79,10 +79,10 @@ body::before {
 /* ─── Reading prose ──────────────────────────────────────────────────────── */
 .reading-prose p {
   font-family: var(--font-jost);
-  font-size: 0.9375rem;
-  line-height: 1.85;
+  font-size: 1.0625rem;
+  line-height: 1.9;
   color: var(--text-secondary);
-  margin-bottom: 1.1rem;
+  margin-bottom: 1.2rem;
 }
 .reading-prose strong {
   font-weight: 500;
