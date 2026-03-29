@@ -149,17 +149,20 @@ model Message {
 }
 
 model InsightArticle {
-  id        String   @id @default(cuid())
-  title     String
-  preview   String
-  content   String
-  category  String   @default("general")
-  readTime  Int      @default(5)
-  published Boolean  @default(false)
-  authorId  String?
-  author    User?    @relation(fields: [authorId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id          String   @id @default(cuid())
+  slug        String?  @unique
+  title       String
+  preview     String
+  content     String
+  category    String   @default("general")
+  readTime    Int      @default(5)
+  published   Boolean  @default(false)
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id])
+  metaTitle   String?
+  metaDesc    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 }
 
 // ─── Forecasts & Insights System ──────────────────────────────────────────────

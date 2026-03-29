@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { dur, ease } from '@/shared/animations/variants'
 import { LifeLinesCanvas } from './LifeLinesCanvas'
-import { SPREAD_ORDER, SPREAD_LABELS, MAJOR_SYMBOLS, ROMAN } from '@/entities/tarot'
+import { SPREAD_ORDER, SPREAD_LABELS, MAJOR_SYMBOLS } from '@/entities/tarot'
 
 // ─── Types & Constants ────────────────────────────────────────────────────────
 
@@ -22,8 +22,6 @@ const DEMO_CARDS = [
 ]
 
 const DEMO_INSIGHT = 'Сейчас вы находитесь в точке, где ясность приходит изнутри, а не извне.'
-
-const DEMO_TEXT = 'Этот период связан с переосмыслением и поиском своего направления. Некоторые обстоятельства могут казаться нестабильными, но именно они ведут вас к росту. Перед вами этап изменений — не резких, но значимых. Важно довериться процессу, даже если сейчас не всё очевидно.'
 
 // ─── Page transitions ─────────────────────────────────────────────────────────
 
@@ -65,9 +63,9 @@ export default function OnboardingPage() {
 
 function HeroScreen({ onTry, router }: { onTry: () => void; router: ReturnType<typeof useRouter> }) {
   const features = [
-    { icon: '◈', title: 'AI нового поколения',      text: 'Передовые модели анализируют контекст вашей ситуации и дают персональные инсайты' },
-    { icon: '⚜', title: 'Живые эксперты',            text: 'Реальные консультанты с многолетним опытом, а не скрипты и чат-боты' },
-    { icon: '✦', title: 'Настоящие результаты',      text: 'Структурированные разборы, которые помогают увидеть ситуацию с новой стороны' },
+    { icon: '◈', title: 'AI нового поколения',      text: 'Передовые модели анализируют контекст вашей ситуации и дают персональные инсайты', href: '/blog?cat=ai' },
+    { icon: '⚜', title: 'Живые эксперты',            text: 'Реальные консультанты с многолетним опытом, а не скрипты и чат-боты', href: '/blog?cat=experts' },
+    { icon: '✦', title: 'Настоящие результаты',      text: 'Структурированные разборы, которые помогают увидеть ситуацию с новой стороны', href: '/blog?cat=results' },
   ]
 
   return (
@@ -185,7 +183,8 @@ function HeroScreen({ onTry, router }: { onTry: () => void; router: ReturnType<t
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 1.4 + i * 0.15 }}
-              className="rounded-xl px-5 py-4 md:py-5"
+              onClick={() => router.push(f.href)}
+              className="rounded-xl px-5 py-4 md:py-5 cursor-pointer transition-all hover:translate-y-[-2px]"
               style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)' }}
             >
               <div className="flex items-start gap-3.5">
@@ -193,6 +192,7 @@ function HeroScreen({ onTry, router }: { onTry: () => void; router: ReturnType<t
                 <div>
                   <p className="font-sans text-sm font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{f.title}</p>
                   <p className="font-sans text-xs leading-[1.6]" style={{ color: 'var(--text-secondary)' }}>{f.text}</p>
+                  <p className="font-sans text-[0.65rem] mt-2" style={{ color: 'var(--gold)' }}>Подробнее →</p>
                 </div>
               </div>
             </motion.div>
