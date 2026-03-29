@@ -30,26 +30,38 @@ model User {
 enum UserRole {
   CLIENT
   READER
+  AUTHOR
   ADMIN
 }
 
 // ─── Reader profile ───────────────────────────────────────────────────────────
 
 model TarotReader {
-  id             String     @id @default(cuid())
-  userId         String     @unique
+  id             String          @id @default(cuid())
+  userId         String          @unique
   name           String
   specialization String
   tier           ReaderTier
   price          Float
-  rating         Float      @default(5.0)
+  rating         Float           @default(5.0)
   bio            String
   imageUrl       String?
-  isActive       Boolean    @default(true)
-  createdAt      DateTime   @default(now())
+  isActive       Boolean         @default(true)
+  approvalStatus ApprovalStatus  @default(PENDING)
+  phone          String?
+  experience     String?         // years / description
+  methods        String?         // comma-separated methods
+  about          String?         // longer about text
+  createdAt      DateTime        @default(now())
 
   user     User      @relation(fields: [userId], references: [id])
   sessions Session[]
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 // ─── Content ──────────────────────────────────────────────────────────────────

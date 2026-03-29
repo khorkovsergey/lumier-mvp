@@ -46,7 +46,10 @@ export default function ReaderLoginPage() {
               Вход для консультантов
             </h1>
             <p className="font-sans text-sm" style={{ color: 'var(--text-muted)' }}>
-              Аккаунт выдаётся администратором платформы
+              Нет аккаунта?{' '}
+              <Link href="/reader/register" className="underline" style={{ color: 'var(--gold)' }}>
+                Подать заявку
+              </Link>
             </p>
           </motion.div>
 

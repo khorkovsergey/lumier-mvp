@@ -166,6 +166,35 @@ export function DashboardClient({ user, sessions }: { user: User; sessions: Sess
             )}
           </div>
         </motion.div>
+
+        {/* Author role request */}
+        {user.role === 'READER' && (
+          <motion.div variants={revealNormal} initial="hidden" animate="visible"
+            className="rounded-xl p-4" style={{ background: 'var(--bg-float)', border: '1px solid var(--border-subtle)' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-sans text-sm font-medium" style={{ color: 'var(--text-primary)' }}>Стать автором новостей</p>
+                <p className="font-sans text-xs" style={{ color: 'var(--text-muted)' }}>Получите возможность публиковать статьи и прогнозы</p>
+              </div>
+              <button onClick={async () => {
+                const { requestAuthorRole } = await import('@/server/actions/auth')
+                const result = await requestAuthorRole()
+                if (result.success) alert(result.success)
+                if (result.error) alert(result.error)
+              }}
+                className="rounded-lg px-4 py-2 font-sans text-xs font-medium flex-shrink-0"
+                style={{ background: 'rgba(212,149,74,0.12)', color: 'var(--gold)', border: '1px solid rgba(212,149,74,0.20)' }}>
+                Запросить
+              </button>
+            </div>
+          </motion.div>
+        )}
+        {user.role === 'AUTHOR' && (
+          <motion.div variants={revealNormal} initial="hidden" animate="visible"
+            className="rounded-xl p-4" style={{ background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.15)' }}>
+            <p className="font-sans text-sm" style={{ color: '#4ADE80' }}>✓ Вы являетесь автором — доступ к публикации статей и прогнозов открыт</p>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   )
