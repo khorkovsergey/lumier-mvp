@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
-  const id = searchParams.get('id')
+  const id = searchParams.get('id') || searchParams.get('sessionId')
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
   try {
     const session = await getSession(id)

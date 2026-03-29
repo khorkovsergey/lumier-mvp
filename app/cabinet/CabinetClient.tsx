@@ -228,8 +228,10 @@ export function CabinetClient({ user, sessions, tarotHistory = [] }: { user: Use
 }
 
 function SessionCard({ session, onClick }: { session: Session; onClick: () => void }) {
+  const router = useRouter()
   const st = STATUS_LABELS[session.status]
   const hasResult = session.asyncReading?.status === 'COMPLETED' && session.asyncReading?.resultText
+  const isActiveLive = session.status === 'ACTIVE' && session.type === 'LIVE'
 
   return (
     <motion.div
@@ -265,6 +267,15 @@ function SessionCard({ session, onClick }: { session: Session; onClick: () => vo
           </p>
         </div>
       </div>
+
+      {isActiveLive && (
+        <button
+          onClick={(e) => { e.stopPropagation(); router.push(`/chat/${session.id}`) }}
+          className="mt-3 w-full flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 font-sans text-xs font-medium transition-all"
+          style={{ background: 'var(--gold)', color: '#0E1520' }}>
+          Продолжить чат →
+        </button>
+      )}
 
       {hasResult && (
         <div className="mt-3 flex items-center gap-2 rounded-lg px-3 py-2"
