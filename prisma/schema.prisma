@@ -129,6 +129,86 @@ model InsightArticle {
   updatedAt DateTime @default(now()) @updatedAt
 }
 
+// ─── Forecasts & Insights System ──────────────────────────────────────────────
+
+model WeeklyInsight {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  tone      String                // e.g. "напряжение", "рост", "перемены"
+  weekStart DateTime
+  published Boolean  @default(false)
+  likes     Int      @default(0)
+  dislikes  Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model GlobalForecast {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  category  String                // politics, economy, technology, society
+  published Boolean  @default(false)
+  likes     Int      @default(0)
+  dislikes  Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  eventDate   DateTime
+  forecast    String?              // expandable forecast text
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model BreakingInsight {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  urgency   String   @default("medium") // low, medium, high
+  published Boolean  @default(false)
+  likes     Int      @default(0)
+  dislikes  Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model AiForecast {
+  id         String   @id @default(cuid())
+  title      String
+  prediction String
+  basis      String              // what data it's based on
+  published  Boolean  @default(false)
+  likes      Int      @default(0)
+  dislikes   Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
+model ForecastAccuracy {
+  id          String   @id @default(cuid())
+  prediction  String
+  outcome     String
+  accurate    Boolean
+  category    String   @default("general")
+  predictedAt DateTime
+  resolvedAt  DateTime?
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Reaction {
+  id         String   @id @default(cuid())
+  userId     String
+  targetId   String              // ID of the item being reacted to
+  targetType String              // weekly, global, breaking, ai
+  type       String              // like, dislike
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, targetId, targetType])
+}
+
 // ─── Password Reset ───────────────────────────────────────────────────────────
 
 model PasswordResetToken {
