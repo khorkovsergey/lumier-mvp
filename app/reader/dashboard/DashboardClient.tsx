@@ -75,7 +75,11 @@ export function DashboardClient({ user, sessions, telegramLinked = false }: { us
             <p className="label-overline" style={{ color: 'var(--gold)', fontSize: '0.6rem' }}>Кабинет консультанта</p>
           </div>
           <div className="flex items-center gap-4">
-            <p className="font-sans text-sm" style={{ color: 'var(--text-secondary)' }}>{user.name}</p>
+            <button onClick={() => router.push('/reader/profile')}
+              className="font-sans text-sm transition-opacity hover:opacity-70"
+              style={{ color: 'var(--text-secondary)' }}>
+              {user.name}
+            </button>
             <button onClick={async () => { await logout() }}
               className="font-sans text-xs transition-opacity hover:opacity-60"
               style={{ color: 'var(--text-muted)' }}>
