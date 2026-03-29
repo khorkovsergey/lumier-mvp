@@ -120,7 +120,7 @@ export default function ChatPage() {
             </p>
           </div>
           <button
-            onClick={() => { if (pollRef.current) clearInterval(pollRef.current); router.push('/insights') }}
+            onClick={() => { if (pollRef.current) clearInterval(pollRef.current); router.push('/cabinet') }}
             className="font-sans text-xs px-3 py-1.5 rounded-full transition-all"
             style={{ color: 'var(--text-muted)', border: '1px solid var(--border-subtle)', background: 'var(--bg-raised)' }}
           >
