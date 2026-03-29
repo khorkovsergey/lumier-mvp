@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { pageIn, staggerNormal, revealNormal, revealSubtle } from '@/shared/animations/variants'
 import { Input, Textarea } from '@/shared/ui/Input'
 import { Button } from '@/shared/ui/Button'
-import { updateReaderProfile } from '@/server/actions/reader-profile'
+import { updateReaderProfile, updateReaderEmail, updateReaderPassword } from '@/server/actions/reader-profile'
 
 const SPECIALIZATIONS = [
   'Таро', 'Астрология', 'Нумерология', 'Руны', 'Ленорман', 'Психология', 'Другое',
@@ -142,8 +142,75 @@ export function ProfileClient({ profile }: { profile: Profile }) {
               Сохранить изменения
             </Button>
           </motion.div>
+
+          <div className="gold-rule my-2" />
+
+          {/* Email change */}
+          <SecuritySection title="Изменить email" current={profile.user.email || ''}
+            fields={[
+              { name: 'email', label: 'Новый email', type: 'email', placeholder: 'new@example.com' },
+              { name: 'password', label: 'Текущий пароль', type: 'password', placeholder: 'Для подтверждения' },
+            ]}
+            action={updateReaderEmail}
+            buttonLabel="Обновить email"
+          />
+
+          {/* Password change */}
+          <SecuritySection title="Изменить пароль" current=""
+            fields={[
+              { name: 'currentPassword', label: 'Текущий пароль', type: 'password', placeholder: '••••••••' },
+              { name: 'newPassword', label: 'Новый пароль', type: 'password', placeholder: 'Минимум 8 символов' },
+              { name: 'confirmPassword', label: 'Подтвердите пароль', type: 'password', placeholder: 'Повторите новый пароль' },
+            ]}
+            action={updateReaderPassword}
+            buttonLabel="Обновить пароль"
+          />
         </motion.div>
       </div>
+    </motion.div>
+  )
+}
+
+function SecuritySection({ title, current, fields, action, buttonLabel }: {
+  title: string; current: string
+  fields: { name: string; label: string; type: string; placeholder: string }[]
+  action: (fd: FormData) => Promise<{ error?: string; success?: string }>
+  buttonLabel: string
+}) {
+  const [values, setValues] = useState<Record<string, string>>({})
+  const [msg, setMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  function handleSubmit() {
+    setMsg(null)
+    const fd = new FormData()
+    fields.forEach(f => fd.set(f.name, values[f.name] || ''))
+    startTransition(async () => {
+      const result = await action(fd)
+      if (result.error) setMsg({ type: 'err', text: result.error })
+      if (result.success) { setMsg({ type: 'ok', text: result.success }); setValues({}) }
+    })
+  }
+
+  return (
+    <motion.div variants={revealNormal} className="space-y-3">
+      <p className="label-overline" style={{ color: 'var(--text-muted)' }}>{title}</p>
+      {current && (
+        <p className="font-sans text-xs" style={{ color: 'var(--text-secondary)' }}>Текущий: {current}</p>
+      )}
+      <div className="space-y-3">
+        {fields.map(f => (
+          <Input key={f.name} label={f.label} type={f.type} placeholder={f.placeholder}
+            value={values[f.name] || ''} onChange={e => setValues(prev => ({ ...prev, [f.name]: e.target.value }))} />
+        ))}
+      </div>
+      {msg && (
+        <p className="font-sans text-xs text-center"
+          style={{ color: msg.type === 'ok' ? '#4ADE80' : '#F87171' }}>{msg.text}</p>
+      )}
+      <Button onClick={handleSubmit} fullWidth size="md" loading={isPending} variant="outline">
+        {buttonLabel}
+      </Button>
     </motion.div>
   )
 }

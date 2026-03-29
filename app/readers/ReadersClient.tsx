@@ -36,7 +36,7 @@ function findRecommended(readers: Reader[]): string | null {
 
 export function ReadersClient({ readers }: { readers: Reader[] }) {
   const router = useRouter()
-  const { question, reader: selectedReader, setReader } = useAppStore()
+  const { user, question, reader: selectedReader, setReader, setSession } = useAppStore()
   const { markComplete } = useFlowStore()
   const [filter, setFilter] = useState<Filter>('Все')
   const recommended = findRecommended(readers)
@@ -50,11 +50,28 @@ export function ReadersClient({ readers }: { readers: Reader[] }) {
     setReader({ id: r.id, name: r.name, specialization: r.specialization, price: r.price, tier: r.tier })
   }
 
-  function handleContinue() {
-    if (!selectedReader.id) return
-    markComplete('readers')
-    router.push('/checkout')
+  async function handleContinue() {
+    if (!selectedReader.id || !user.id) return
+    setLoading(true)
+    try {
+      const { createSession, activateSession } = await import('@/server/actions')
+      const result = await createSession({ userId: user.id, readerId: selectedReader.id, type: 'LIVE' })
+      if (result.success) {
+        await activateSession(result.session.id)
+        setSession({ id: result.session.id, orderId: null, type: 'LIVE' })
+        markComplete('readers')
+        markComplete('checkout')
+        markComplete('session-format')
+        router.push(`/chat/${result.session.id}`)
+      }
+    } catch {
+      setError('Ошибка при создании сессии')
+    } finally {
+      setLoading(false)
+    }
   }
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   return (
     <div className="flex min-h-screen flex-col" style={{ background: 'var(--bg-base)' }}>
@@ -158,8 +175,9 @@ export function ReadersClient({ readers }: { readers: Reader[] }) {
                   ${selectedReader.price}
                 </p>
               </div>
-              <Button onClick={handleContinue} fullWidth size="lg">
-                Перейти к оформлению
+              {error && <p className="font-sans text-xs text-center mb-2" style={{ color: '#F87171' }}>{error}</p>}
+              <Button onClick={handleContinue} fullWidth size="lg" loading={loading}>
+                Начать консультацию
               </Button>
             </div>
           </motion.div>
