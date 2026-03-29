@@ -19,16 +19,36 @@ export default function ReaderRegisterPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [isPending, startTransition] = useTransition()
-  const [spec, setSpec] = useState('')
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  // All fields stored in state so nothing is lost between steps
+  const [f, setF] = useState({
+    name: '', email: '', password: '', phone: '',
+    specialization: '', experience: '', methods: '',
+    price: '', bio: '', about: '',
+  })
+
+  function set(field: string, value: string) {
+    setF(prev => ({ ...prev, [field]: value }))
+  }
+
+  function goToStep2() {
     setError('')
+    if (!f.name.trim() || f.name.trim().length < 2) { setError('Введите имя (минимум 2 символа)'); return }
+    if (!f.email.includes('@')) { setError('Введите корректный email'); return }
+    if (f.password.length < 8) { setError('Пароль — минимум 8 символов'); return }
+    if (!f.phone.trim()) { setError('Введите телефон'); return }
+    setStep(2)
+  }
 
-    if (step === 1) { setStep(2); return }
+  function handleSubmit() {
+    setError('')
+    if (!f.specialization) { setError('Выберите специализацию'); return }
+    if (!f.experience.trim()) { setError('Укажите опыт работы'); return }
+    if (!f.methods.trim()) { setError('Укажите методы работы'); return }
+    if (f.bio.trim().length < 20) { setError('Описание — минимум 20 символов'); return }
 
-    const formData = new FormData(e.currentTarget)
-    formData.set('specialization', spec || formData.get('specialization') as string)
+    const formData = new FormData()
+    Object.entries(f).forEach(([k, v]) => formData.set(k, v))
 
     startTransition(async () => {
       const result = await registerReader(formData)
@@ -62,13 +82,13 @@ export default function ReaderRegisterPage() {
 
       <div className="w-full max-w-sm md:max-w-md">
         {/* Header */}
-        <motion.div variants={staggerNormal} initial="hidden" animate="visible" className="mb-8 text-center">
+        <div className="mb-8 text-center">
           <Link href="/">
             <p className="font-serif text-2xl font-light" style={{ color: 'var(--text-primary)', letterSpacing: '0.06em' }}>Lumier</p>
           </Link>
           <div className="mx-auto mt-2" style={{ height: 1, width: 24, background: 'var(--gold)' }} />
           <p className="label-overline mt-3" style={{ color: 'var(--gold)' }}>Анкета консультанта</p>
-        </motion.div>
+        </div>
 
         {/* Progress */}
         <div className="flex gap-1.5 mb-8">
@@ -81,87 +101,99 @@ export default function ReaderRegisterPage() {
           ))}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-5">
           {step === 1 && (
-            <motion.div variants={staggerNormal} initial="hidden" animate="visible" className="space-y-5">
-              <motion.div variants={revealHero}>
+            <motion.div key="s1" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -16 }} className="space-y-5">
+              <div>
                 <h2 className="font-serif font-light mb-1" style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>
                   Расскажите о себе
                 </h2>
                 <p className="font-sans text-xs" style={{ color: 'var(--text-muted)' }}>Шаг 1 из 2 — Личные данные</p>
-              </motion.div>
+              </div>
 
-              <motion.div variants={revealNormal} className="space-y-4">
-                <Input name="name" label="Имя и фамилия" placeholder="Как к вам обращаться" required />
-                <Input name="email" label="Email" type="email" placeholder="you@example.com" required />
-                <Input name="password" label="Пароль" type="password" placeholder="Минимум 8 символов" required minLength={8} />
-                <Input name="phone" label="Телефон" type="tel" placeholder="+7 (___) ___-__-__" required />
-              </motion.div>
+              <div className="space-y-4">
+                <Input label="Имя и фамилия" placeholder="Как к вам обращаться"
+                  value={f.name} onChange={e => set('name', e.target.value)} />
+                <Input label="Email" type="email" placeholder="you@example.com"
+                  value={f.email} onChange={e => set('email', e.target.value)} />
+                <Input label="Пароль" type="password" placeholder="Минимум 8 символов"
+                  value={f.password} onChange={e => set('password', e.target.value)} />
+                <Input label="Телефон" type="tel" placeholder="+7 (___) ___-__-__"
+                  value={f.phone} onChange={e => set('phone', e.target.value)} />
+              </div>
             </motion.div>
           )}
 
           {step === 2 && (
-            <motion.div variants={staggerNormal} initial="hidden" animate="visible" className="space-y-5">
-              <motion.div variants={revealHero}>
+            <motion.div key="s2" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 16 }} className="space-y-5">
+              <div>
                 <h2 className="font-serif font-light mb-1" style={{ fontSize: '1.5rem', color: 'var(--text-primary)' }}>
                   Профессиональный опыт
                 </h2>
                 <p className="font-sans text-xs" style={{ color: 'var(--text-muted)' }}>Шаг 2 из 2 — Расскажите о вашей практике</p>
-              </motion.div>
+              </div>
 
-              <motion.div variants={revealNormal} className="space-y-4">
-                {/* Specialization */}
+              <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="label-overline block">Специализация</label>
                   <div className="flex flex-wrap gap-2">
                     {SPECIALIZATIONS.map(s => (
-                      <button key={s} type="button" onClick={() => setSpec(s)}
+                      <button key={s} type="button" onClick={() => set('specialization', s)}
                         className="rounded-full px-3 py-1.5 font-sans text-xs transition-all"
                         style={{
-                          background: spec === s ? 'var(--gold)' : 'var(--bg-raised)',
-                          color: spec === s ? '#0E1520' : 'var(--text-secondary)',
-                          border: spec === s ? 'none' : '1px solid var(--border-subtle)',
+                          background: f.specialization === s ? 'var(--gold)' : 'var(--bg-raised)',
+                          color: f.specialization === s ? '#0E1520' : 'var(--text-secondary)',
+                          border: f.specialization === s ? 'none' : '1px solid var(--border-subtle)',
                         }}>
                         {s}
                       </button>
                     ))}
                   </div>
-                  <input type="hidden" name="specialization" value={spec} />
                 </div>
 
-                <Input name="experience" label="Опыт работы" placeholder="Например: 5 лет практики" required />
-                <Input name="methods" label="Методы и подходы" placeholder="Таро Уэйта, астрологические карты..." required />
-                <Input name="price" label="Стоимость консультации ($)" type="number" placeholder="50" required min={1} />
-                <Textarea name="bio" label="Краткое описание" placeholder="2-3 предложения о вашем подходе (мин. 20 символов)" required rows={3} />
-                <Textarea name="about" label="Подробнее о вас (опционально)" placeholder="Образование, сертификаты, философия работы..." rows={4} />
-              </motion.div>
+                <Input label="Опыт работы" placeholder="Например: 5 лет практики"
+                  value={f.experience} onChange={e => set('experience', e.target.value)} />
+                <Input label="Методы и подходы" placeholder="Таро Уэйта, астрологические карты..."
+                  value={f.methods} onChange={e => set('methods', e.target.value)} />
+                <Input label="Стоимость консультации ($)" type="number" placeholder="50"
+                  value={f.price} onChange={e => set('price', e.target.value)} />
+                <Textarea label="Краткое описание" placeholder="2-3 предложения о вашем подходе (мин. 20 символов)"
+                  value={f.bio} onChange={e => set('bio', e.target.value)} rows={3} />
+                <Textarea label="Подробнее о вас (опционально)" placeholder="Образование, сертификаты, философия работы..."
+                  value={f.about} onChange={e => set('about', e.target.value)} rows={4} />
+              </div>
             </motion.div>
           )}
 
           {error && (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-sans text-xs text-center" style={{ color: '#F87171' }}>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="font-sans text-xs text-center" style={{ color: '#F87171' }}>
               {error}
             </motion.p>
           )}
 
           <div className="space-y-3 pt-2">
-            <Button type="submit" fullWidth size="lg" loading={isPending}>
-              {step === 1 ? 'Продолжить' : 'Отправить анкету'}
-            </Button>
-            {step === 2 && (
-              <button type="button" onClick={() => setStep(1)}
-                className="w-full font-sans text-sm transition-colors py-2" style={{ color: 'var(--text-muted)' }}>
-                ← Назад
-              </button>
+            {step === 1 ? (
+              <Button onClick={goToStep2} fullWidth size="lg">Продолжить</Button>
+            ) : (
+              <>
+                <Button onClick={handleSubmit} fullWidth size="lg" loading={isPending}>Отправить анкету</Button>
+                <button type="button" onClick={() => { setError(''); setStep(1) }}
+                  className="w-full font-sans text-sm transition-colors py-2" style={{ color: 'var(--text-muted)' }}>
+                  ← Назад
+                </button>
+              </>
             )}
           </div>
-        </form>
+        </div>
 
-        <motion.div variants={revealSubtle} initial="hidden" animate="visible" className="text-center mt-6">
+        <div className="text-center mt-6">
           <Link href="/reader/login" className="font-sans text-xs transition-opacity hover:opacity-70" style={{ color: 'var(--text-muted)' }}>
             Уже есть аккаунт? <span style={{ color: 'var(--gold)' }}>Войти</span>
           </Link>
-        </motion.div>
+        </div>
       </div>
     </motion.div>
   )
