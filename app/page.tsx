@@ -518,11 +518,11 @@ function SignupScreen({ router }: { router: ReturnType<typeof useRouter> }) {
 
         <div className="space-y-2">
           <h2 className="font-serif font-light" style={{ fontSize: '1.75rem', color: 'var(--text-primary)' }}>
-            Ваш персональный
-            <br />разбор готов
+            Готовы открыть
+            <br />для себя новое?
           </h2>
           <p className="font-sans text-sm" style={{ color: 'var(--text-secondary)' }}>
-            Продолжите, чтобы получить полный ответ
+            Получи 1 бесплатное предсказание от самого передового AI
           </p>
         </div>
 
